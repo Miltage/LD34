@@ -3,6 +3,7 @@ package me.miltage.ld34;
 import openfl.display.Stage;
 import me.miltage.ld34.KeyObject;
 import me.miltage.ld34.physics.Constraint;
+import me.miltage.ld34.physics.BiasedConstraint;
 import openfl.display.BitmapData;
 import openfl.display.Bitmap;
 import openfl.display.Sprite;
@@ -23,7 +24,9 @@ class Game extends Sprite {
 
 	var anchors:Array<Anchor>;
 	var oldAnchors:Array<Anchor>;
+	var miscAnchors:Array<Anchor>;
 	var constraints:Array<Constraint>;
+	var miscConstraints:Array<Constraint>;
 	var frames:Array<Frame>;
 	var angle:Float;
 	var count:Int;
@@ -138,7 +141,7 @@ class Game extends Sprite {
 
 		// update old anchors - can't forget about them!
 		for(anchor in oldAnchors){
-			if(anchor.r.y > 400) continue;
+			if(anchor.r.y+drawOffset > 400 || anchor.r.y+drawOffset < -100)	continue;
 			if(anchor.r.y > 280) anchor.r.y = 280;
 			if(anchor.r.x < 120) anchor.r.x = 120;
 			else if(anchor.r.x > 280) anchor.r.x = 280;
@@ -171,16 +174,39 @@ class Game extends Sprite {
 			}
 		}
 
+		// update hanging anchors
+		for(anchor in miscAnchors){
+			anchor.forces.push(new Point(0, 0.025));
+			if(anchor.connected)
+				anchor.forces.push(new Point(0, 0.3));
+			anchor.update();
+			if(Point.distance(lastAnchor.r, anchor.r) < 10 && !anchor.connected){
+				constraints.push(new BiasedConstraint(lastAnchor, anchor, 0, 1));
+				//lastAnchor.anchored = true;
+				lastAnchor.position = 1-lastAnchor.position;
+				oldAnchors = oldAnchors.concat(anchors);
+				anchors = [];
+			}
+		}
+
+		// draw hanging lines
+		for(constraint in miscConstraints){
+			constraint.update();
+			var diff = constraint.b.r.subtract(constraint.a.r);
+			diff.normalize(1);
+			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x+diff.x, constraint.b.r.y+diff.y+drawOffset, 0xff1f1e1b);
+		}
+
 		drawOffset = Std.int(150-lastAnchor.r.y);
 		if(drawOffset < 0) drawOffset = 0;
 
 		count++;
-		if(count % 10 == 0 || lastAnchor.anchored){
+		if(count % 10 == 0 || lastAnchor.anchored || lastAnchor.connected){
 			var a = new Anchor(lastAnchor.r.x, lastAnchor.r.y);
 			a.position = lastAnchor.position;
 			anchors.push(a);
 			
-			var c = new Constraint(lastAnchor, a, 0);
+			var c = new Constraint(lastAnchor, a, -1);
 			constraints.push(c);
 		}
 	}
@@ -200,6 +226,26 @@ class Game extends Sprite {
 		wallOrderRight = [];
 		wallObjects = [];
 		generateWall();
+
+		miscAnchors = [];
+		miscConstraints = [];
+		var liney = 100;
+		for(i in 0...10){
+			var a:Anchor = new Anchor(120, liney);
+			var b:Anchor = null;
+			a.anchored = true;
+			miscAnchors.push(a);
+			liney += Std.int(Math.random()*50-25);
+			for(j in 0...10){
+				b = new Anchor(a.r.x + 16, liney);
+				miscAnchors.push(b);
+				var c:Constraint = new Constraint(a, b, 16);
+				miscConstraints.push(c);
+				a = b;
+			}
+			b.anchored = true;
+			liney -= 10+Std.int(Math.random()*300);
+		}
 	}
 
 	var wallOrderLeft:Array<Int>;

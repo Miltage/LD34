@@ -14,6 +14,7 @@ class Anchor {
 	public var leaf:Bool = false;
 	public var leafSize:Float = 0;
 	public var leafMaxSize:Float = 0;
+	public var connected:Bool = false;
 	public function new(x:Float, y:Float) {
 		r = new Point(x, y);
 		a = new Point();
