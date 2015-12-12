@@ -228,45 +228,58 @@ class Game extends Sprite {
 	}
 
 	private function generateWall(){
-		for(i in 0...50){
+		for(i in 0...35){
 			var n = Math.random()>.5?1:0;
 			wallOrderLeft.push(n);
-			if(n == 1){
-				var f = new Frame("ledge.png");
-				f.x = 120;
-				f.y = 236-wallWindowsLeft.height*(i+1);
-				frames.push(f);
-			}
-			if(i>0 && n==1 && wallOrderLeft[i-1] == 1){
-				var f = new Frame("fire_escape.png");
-				f.x = 120;
-				f.y = 208-wallWindowsLeft.height*(i+1);
-				if(i>1) f.setRect(new Rectangle(0, 0, f.width, f.height-29));
-				wallObjects.push(f);
-				frames.push(f);
-			}
+			genPiece(n, i, 0);
 		}
 
-		for(i in 0...50){
+		for(i in 0...35){
 			var n = Math.random()>.5?1:0;
-			if(wallOrderLeft[i] == 0) n = 1;
+			// easy mode - always something to climb
+			if(wallOrderLeft[i] == 0) n == 1;
 			wallOrderRight.push(n);
-			if(n == 1){
-				var f = new Frame("ledge.png");
-				f.x = 280;
-				f.y = 236-wallWindowsLeft.height*(i+1);
-				f.scaleX = -1;
-				frames.push(f);
-			}
-			if(i>0 && n==1 && wallOrderRight[i-1] == 1){
-				var f = new Frame("fire_escape.png");
-				f.x = 280;
-				f.y = 208-wallWindowsLeft.height*(i+1);
-				f.scaleX = -1;
-				if(i>1) f.setRect(new Rectangle(0, 0, f.width, f.height-29));
-				wallObjects.push(f);
-				frames.push(f);
-			}
+			genPiece(n, i, 1);
+		}
+	}
+
+	private function genPiece(n:Int, i:Int, side:Int){
+		if(n == 1){
+			var f = new Frame("ledge.png");
+			f.x = 120+side*160;
+			f.y = 236-wallWindowsLeft.height*(i+1);
+			frames.push(f);
+		}
+		var a = side==0?wallOrderLeft:wallOrderRight;
+		if(i>0 && n==1 && a[i-1] == 1){
+			var f = new Frame("fire_escape.png");
+			f.x = 120+side*160;
+			f.y = 208-wallWindowsLeft.height*(i+1);
+			f.scaleX = side==0?1:-1;
+			if(i>1) f.setRect(new Rectangle(0, 0, f.width, f.height-29));
+			wallObjects.push(f);
+			frames.push(f);
+		} else if(n==1 && Math.random() < .5){
+			var f = new Frame("aircon.png");
+			f.x = 110+side*180;
+			f.y = 200-wallWindowsLeft.height*(i+1);
+			f.scaleX = side==0?1:-1;
+			wallObjects.push(f);
+			frames.push(f);
+		} else if (n == 0 && Math.random() < .4){
+			var f = new Frame("satellite.png");
+			f.x = 120+side*160;
+			f.y = 200-wallWindowsLeft.height*(i+1);
+			f.scaleX = side==0?1:-1;
+			wallObjects.push(f);
+			frames.push(f);
+		} else if (n == 0 && Math.random() < .4){
+			var f = new Frame("camera.png");
+			f.x = 120+side*160;
+			f.y = 200-wallWindowsLeft.height*(i+1);
+			f.scaleX = side==0?1:-1;
+			wallObjects.push(f);
+			frames.push(f);
 		}
 	}
 }
