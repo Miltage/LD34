@@ -130,7 +130,9 @@ class Game extends Sprite {
 
 		for(constraint in constraints){
 			constraint.update();
-			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x, constraint.b.r.y+drawOffset, 0xff5ea55d);
+			var diff = constraint.b.r.subtract(constraint.a.r);
+			diff.normalize(1);
+			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x+diff.x, constraint.b.r.y+diff.y+drawOffset, 0xff5ea55d);
 		}
 
 		for(frame in frames){

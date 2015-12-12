@@ -43,7 +43,7 @@ class GraphicsUtil {
 				bmd.setPixel32(Std.int(x0), Std.int(y0), color);
 			}
 		}
-		
+
 		
 	}	
 
