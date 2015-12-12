@@ -84,11 +84,21 @@ class Game extends Sprite {
 		// end back wall
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		drawWalls();
-		for(frame in frames){
-			bmd.draw(frame, new openfl.geom.Matrix(frame.scaleX, 0, 0, 1, frame.x, frame.y+drawOffset), new openfl.geom.ColorTransform(0, 0, 1, 1, 1, 1, 1, 1));
+
+		// draw background vines
+		for(constraint in constraints){
+			//constraint.update();
+			if(constraint.b.position == 0) continue;
+			var diff = constraint.b.r.subtract(constraint.a.r);
+			diff.normalize(1);
+			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x+diff.x, constraint.b.r.y+diff.y+drawOffset, 0xff5ea55d);
 		}
+
 		for(object in wallObjects){
 			bmd.draw(object, new openfl.geom.Matrix(object.scaleX, 0, 0, 1, object.x, object.y+drawOffset));
+		}
+		for(frame in frames){
+			//bmd.draw(frame, new openfl.geom.Matrix(frame.scaleX, 0, 0, 1, frame.x, frame.y+drawOffset), new openfl.geom.ColorTransform(0, 0, 1, 1, 1, 1, 1, 1));
 		}
 
 		var lastAnchor:Anchor = anchors[anchors.length-1];
@@ -110,6 +120,7 @@ class Game extends Sprite {
 
 		var gravity = new Point(0, 0.1+0.006*anchors.length);
 
+		// update new anchors
 		for(anchor in anchors){
 			anchor.forces.push(gravity);
 			anchor.update();
@@ -119,6 +130,7 @@ class Game extends Sprite {
 			//GraphicsUtil.drawCircle(bmd, anchor.r.x, anchor.r.y+drawOffset, 2, 0xff61a45a, true);
 		}
 
+		// update old anchors - can't forget about them!
 		for(anchor in oldAnchors){
 			if(anchor.r.y > 400) continue;
 			if(anchor.r.y > 280) anchor.r.y = 280;
@@ -128,16 +140,20 @@ class Game extends Sprite {
 			anchor.update();
 		}
 
+		// draw foreground vines
 		for(constraint in constraints){
 			constraint.update();
+			if(constraint.b.position == 1) continue;
 			var diff = constraint.b.r.subtract(constraint.a.r);
 			diff.normalize(1);
 			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x+diff.x, constraint.b.r.y+diff.y+drawOffset, 0xff5ea55d);
 		}
 
+		// check collision between vine and objects in alley
 		for(frame in frames){
 			if(frame.collides(Std.int(lastAnchor.r.x-frame.x), Std.int(lastAnchor.r.y-frame.y))){
 				lastAnchor.anchored = true;
+				lastAnchor.position = 1-lastAnchor.position;
 				oldAnchors = oldAnchors.concat(anchors);
 				anchors = [];
 			}
@@ -149,6 +165,7 @@ class Game extends Sprite {
 		count++;
 		if(count % 10 == 0 || lastAnchor.anchored){
 			var a = new Anchor(lastAnchor.r.x, lastAnchor.r.y);
+			a.position = lastAnchor.position;
 			anchors.push(a);
 			
 			var c = new Constraint(lastAnchor, a, 0);
@@ -184,18 +201,22 @@ class Game extends Sprite {
 			var p = 195-wallWindowsLeft.height*(i+1) + drawOffset;
 			if(wallOrderLeft[i] == 0)
 				bmd.copyPixels(walls, wallBricksLeft, new Point(0, p), null, null, true);
-			else
+			else{
+				bmd.fillRect(new Rectangle(0, p, 100, 50), 0xff3d3c39);
 				bmd.copyPixels(walls, wallWindowsLeft, new Point(0, p), null, null, true);
+			}
 
 			if(wallOrderRight[i] == 0)
 				bmd.copyPixels(walls, wallBricksRight, new Point(200, p), null, null, true);
-			else
+			else{
+				bmd.fillRect(new Rectangle(300, p, 100, 50), 0xff3d3c39);
 				bmd.copyPixels(walls, wallWindowsRight, new Point(200, p), null, null, true);
+			}
 		}
 	}
 
 	private function generateWall(){
-		for(i in 0...10){
+		for(i in 0...50){
 			var n = Math.random()>.5?1:0;
 			wallOrderLeft.push(n);
 			if(n == 1){
@@ -214,9 +235,9 @@ class Game extends Sprite {
 			}
 		}
 
-		for(i in 0...10){
+		for(i in 0...50){
 			var n = Math.random()>.5?1:0;
-			n=1;
+			if(wallOrderLeft[i] == 0) n = 1;
 			wallOrderRight.push(n);
 			if(n == 1){
 				var f = new Frame("ledge.png");

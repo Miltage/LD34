@@ -9,6 +9,7 @@ class Anchor {
 	var d:Float = .98;
 	public var forces:Array<Point> = [];
 	public var anchored = false;
+	public var position = 0;
 	public function new(x:Float, y:Float) {
 		r = new Point(x, y);
 		a = new Point();
