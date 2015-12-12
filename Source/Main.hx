@@ -13,7 +13,7 @@ class Main extends Sprite {
 		
 		super ();
 		
-		game = new Game();
+		game = new Game(stage);
 		addChild(game);
 		
 	}
