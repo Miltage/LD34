@@ -15,8 +15,8 @@ class Frame extends Sprite {
 		var b:Bitmap = new Bitmap(bmd);
 		addChild(b);
 
-		x = 250;
-		y = 250;
+		x = 100;
+		y = 150;
 	}
 
 	public function collides(x:Int, y:Int){

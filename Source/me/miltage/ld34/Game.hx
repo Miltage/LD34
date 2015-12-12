@@ -25,6 +25,8 @@ class Game extends Sprite {
 	var frames:Array<Frame>;
 	var angle:Float;
 	var count:Int;
+
+	var drawOffset:Int;
 	
 	public function new(stage:Stage) {
 		super();
@@ -33,25 +35,22 @@ class Game extends Sprite {
 
 		frames = [];
 		var f = new Frame();
-		addChild(f);
 		frames.push(f);
 		var f2 = new Frame();
 		f2.y = 0;
-		addChild(f2);
 		frames.push(f2);
 
-		bmd = new BitmapData(800, 600, true, 0x00000000);
+		bmd = new BitmapData(400, 300, true, 0x00000000);
 		var b:Bitmap = new Bitmap(bmd);
+		b.scaleX = b.scaleY = 2;
 		addChild(b);
 
 		oldAnchors = [];
 		anchors = [];
 		for(i in 0...2){
-			var a = new Anchor(Math.random()*800, Math.random()*600);
+			var a = new Anchor(200, 280);
 			anchors.push(a);
 		}
-		anchors[0].r.x = 400;
-		anchors[0].r.y = 580;
 		anchors[0].anchored = true;
 
 		constraints = [];
@@ -62,12 +61,18 @@ class Game extends Sprite {
 
 		angle = 180;
 		count = 0;
+		drawOffset = 0;
 
 		addEventListener(Event.ENTER_FRAME, tick);
 	}
 
 	public function tick(e:Event){
 		bmd.fillRect(bmd.rect, 0x00000000);
+		bmd.fillRect(new flash.geom.Rectangle(0, 0, 120, 300), 0xff4455cc);
+		bmd.fillRect(new flash.geom.Rectangle(280, 0, 120, 300), 0xff4455cc);
+		for(frame in frames){
+			bmd.draw(frame, new openfl.geom.Matrix(1, 0, 0, 1, frame.x, frame.y+drawOffset));
+		}
 
 		var lastAnchor:Anchor = anchors[anchors.length-1];
 		if(key.isDown(KeyObject.LEFT) || key.isDown(KeyObject.A)){
@@ -85,15 +90,15 @@ class Game extends Sprite {
 		var lastConstraint = constraints[constraints.length-1];
 		lastConstraint.setLength(lastConstraint.getLength()+1);
 
-		var gravity = new Point(0, 0.1+0.005*anchors.length); 
+		var gravity = new Point(0, 0.1+0.006*anchors.length); 
 
 		for(anchor in anchors){
 			anchor.forces.push(gravity);
 			anchor.update();
-			if(anchor.r.y > 580) anchor.r.y = 580;
-			if(anchor.r.x < 300) anchor.r.x = 300;
-			else if(anchor.r.x > 500) anchor.r.x = 500;
-			GraphicsUtil.drawCircle(bmd, anchor.r.x, anchor.r.y, 3, 0xffff3333, true);
+			if(anchor.r.y > 280) anchor.r.y = 280;
+			if(anchor.r.x < 120) anchor.r.x = 120;
+			else if(anchor.r.x > 280) anchor.r.x = 280;
+			GraphicsUtil.drawCircle(bmd, anchor.r.x, anchor.r.y+drawOffset, 2, 0xffff3333, true);
 		}
 
 		for(anchor in oldAnchors){
@@ -103,7 +108,7 @@ class Game extends Sprite {
 
 		for(constraint in constraints){
 			constraint.update();
-			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y, constraint.b.r.x, constraint.b.r.y, 0xffff3333);
+			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x, constraint.b.r.y+drawOffset, 0xffff3333);
 		}
 
 		for(frame in frames){
@@ -113,6 +118,8 @@ class Game extends Sprite {
 				anchors = [];
 			}
 		}
+
+		if(lastAnchor.r.y < 100) drawOffset++;
 
 		count++;
 		if(count % 10 == 0 || lastAnchor.anchored){
