@@ -66,7 +66,7 @@ class Game extends Sprite {
 			constraints.push(c);
 		}
 
-		angle = 180;
+		angle = 270;
 		count = 0;
 		drawOffset = 0;
 
@@ -75,7 +75,13 @@ class Game extends Sprite {
 
 	public function tick(e:Event){
 		bmd.fillRect(bmd.rect, 0x00000000);
-		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset/2));
+		// repeat back wall
+		var bwp:Int = Std.int(drawOffset/2-8*Math.floor(drawOffset/16));
+		bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, bwp-8));
+		bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, bwp+64));
+		bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, bwp+152));
+		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, Std.int(drawOffset/2)));
+		// end back wall
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		drawWalls();
 		for(frame in frames){
