@@ -1,12 +1,13 @@
 package me.miltage.ld34;
 
-import flash.display.Stage;
+import openfl.display.Stage;
 import me.miltage.ld34.KeyObject;
 import me.miltage.ld34.physics.Constraint;
 import openfl.display.BitmapData;
 import openfl.display.Bitmap;
 import openfl.display.Sprite;
 import openfl.events.Event;
+import openfl.Assets;
 
 import me.miltage.ld34.physics.Anchor;
 import openfl.geom.Point;
@@ -27,6 +28,9 @@ class Game extends Sprite {
 	var count:Int;
 
 	var drawOffset:Int;
+	var walls:BitmapData;
+	var backWalls:BitmapData;
+	var street:BitmapData;
 	
 	public function new(stage:Stage) {
 		super();
@@ -34,16 +38,21 @@ class Game extends Sprite {
 		key = new KeyObject(stage);
 
 		frames = [];
-		var f = new Frame();
-		frames.push(f);
-		var f2 = new Frame();
-		f2.y = 0;
-		frames.push(f2);
+		for(i in 0...20){
+			var f = new Frame();
+			f.x = 120 + Math.random()*100;
+			f.y = -i*140+200;
+			frames.push(f);
+		}
 
 		bmd = new BitmapData(400, 300, true, 0x00000000);
 		var b:Bitmap = new Bitmap(bmd);
 		b.scaleX = b.scaleY = 2;
 		addChild(b);
+
+		walls = Assets.getBitmapData("assets/walls.png");
+		backWalls = Assets.getBitmapData("assets/background.png");
+		street = Assets.getBitmapData("assets/street.png");
 
 		oldAnchors = [];
 		anchors = [];
@@ -68,8 +77,9 @@ class Game extends Sprite {
 
 	public function tick(e:Event){
 		bmd.fillRect(bmd.rect, 0x00000000);
-		bmd.fillRect(new flash.geom.Rectangle(0, 0, 120, 300), 0xff4455cc);
-		bmd.fillRect(new flash.geom.Rectangle(280, 0, 120, 300), 0xff4455cc);
+		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset/2));
+		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
+		bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		for(frame in frames){
 			bmd.draw(frame, new openfl.geom.Matrix(1, 0, 0, 1, frame.x, frame.y+drawOffset));
 		}
@@ -90,7 +100,7 @@ class Game extends Sprite {
 		var lastConstraint = constraints[constraints.length-1];
 		lastConstraint.setLength(lastConstraint.getLength()+1);
 
-		var gravity = new Point(0, 0.1+0.006*anchors.length); 
+		var gravity = new Point(0, 0.1+0.006*anchors.length);
 
 		for(anchor in anchors){
 			anchor.forces.push(gravity);
@@ -98,17 +108,18 @@ class Game extends Sprite {
 			if(anchor.r.y > 280) anchor.r.y = 280;
 			if(anchor.r.x < 120) anchor.r.x = 120;
 			else if(anchor.r.x > 280) anchor.r.x = 280;
-			GraphicsUtil.drawCircle(bmd, anchor.r.x, anchor.r.y+drawOffset, 2, 0xffff3333, true);
+			//GraphicsUtil.drawCircle(bmd, anchor.r.x, anchor.r.y+drawOffset, 2, 0xff61a45a, true);
 		}
 
 		for(anchor in oldAnchors){
+			if(anchor.r.y > 400) continue;
 			anchor.forces.push(gravity);
 			anchor.update();
 		}
 
 		for(constraint in constraints){
 			constraint.update();
-			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x, constraint.b.r.y+drawOffset, 0xffff3333);
+			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x, constraint.b.r.y+drawOffset, 0xff5ea55d);
 		}
 
 		for(frame in frames){
