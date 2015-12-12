@@ -9,14 +9,11 @@ class Frame extends Sprite {
 
 	var bmd:BitmapData;
 	
-	public function new(){
+	public function new(asset:String){
 		super();
-		bmd = Assets.getBitmapData("assets/frame.png");
+		bmd = Assets.getBitmapData("assets/"+asset);
 		var b:Bitmap = new Bitmap(bmd);
 		addChild(b);
-
-		x = 100;
-		y = 150;
 	}
 
 	public function collides(x:Int, y:Int){

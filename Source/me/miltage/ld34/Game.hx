@@ -38,12 +38,8 @@ class Game extends Sprite {
 		key = new KeyObject(stage);
 
 		frames = [];
-		for(i in 0...20){
-			var f = new Frame();
-			f.x = 120 + Math.random()*100;
-			f.y = -i*140+200;
+			var f = new Frame("street_frame.png");
 			frames.push(f);
-		}
 
 		bmd = new BitmapData(400, 300, true, 0x00000000);
 		var b:Bitmap = new Bitmap(bmd);
@@ -81,7 +77,7 @@ class Game extends Sprite {
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		for(frame in frames){
-			bmd.draw(frame, new openfl.geom.Matrix(1, 0, 0, 1, frame.x, frame.y+drawOffset));
+			bmd.draw(frame, new openfl.geom.Matrix(1, 0, 0, 1, frame.x, frame.y+drawOffset), new openfl.geom.ColorTransform(0, 0, 1, 1, 1, 1, 1, 1));
 		}
 
 		var lastAnchor:Anchor = anchors[anchors.length-1];
@@ -91,6 +87,7 @@ class Game extends Sprite {
 		if(key.isDown(KeyObject.RIGHT) || key.isDown(KeyObject.D)){
 			angle+=TURN_SPEED;
 		}
+		angle += Math.random()*10-5;
 		var radians = angle * Math.PI / 180;
 		var dx = Math.cos(radians);
 		var dy = Math.sin(radians);
@@ -113,6 +110,9 @@ class Game extends Sprite {
 
 		for(anchor in oldAnchors){
 			if(anchor.r.y > 400) continue;
+			if(anchor.r.y > 280) anchor.r.y = 280;
+			if(anchor.r.x < 120) anchor.r.x = 120;
+			else if(anchor.r.x > 280) anchor.r.x = 280;
 			anchor.forces.push(gravity);
 			anchor.update();
 		}
@@ -140,5 +140,9 @@ class Game extends Sprite {
 			var c = new Constraint(lastAnchor, a, 0);
 			constraints.push(c);
 		}
+	}
+
+	private function makeWalls(){
+		
 	}
 }
