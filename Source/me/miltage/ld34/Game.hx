@@ -135,7 +135,8 @@ class Game extends Sprite {
 			}
 		}
 
-		if(lastAnchor.r.y < 100) drawOffset++;
+		drawOffset = Std.int(150-lastAnchor.r.y);
+		if(drawOffset < 0) drawOffset = 0;
 
 		count++;
 		if(count % 10 == 0 || lastAnchor.anchored){
@@ -206,12 +207,21 @@ class Game extends Sprite {
 
 		for(i in 0...10){
 			var n = Math.random()>.5?1:0;
+			n=1;
 			wallOrderRight.push(n);
 			if(n == 1){
 				var f = new Frame("ledge.png");
 				f.x = 280;
 				f.y = 236-wallWindowsLeft.height*(i+1);
 				f.scaleX = -1;
+				frames.push(f);
+			}
+			if(i>0 && n==1 && wallOrderRight[i-1] == 1){
+				var f = new Frame("fire_escape.png");
+				f.x = 280;
+				f.y = 208-wallWindowsLeft.height*(i+1);
+				f.scaleX = -1;
+				wallObjects.push(f);
 				frames.push(f);
 			}
 		}

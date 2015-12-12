@@ -17,6 +17,7 @@ class Frame extends Sprite {
 	}
 
 	public function collides(x:Int, y:Int){
-		return bmd.getPixel32(x, y) != 0;
+		if(scaleX < 0) x += bmd.width;
+		return bmd.getPixel32(scaleX<0?bmd.width-x:x, y) != 0;
 	}
 }
