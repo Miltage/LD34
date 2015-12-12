@@ -81,6 +81,9 @@ class Game extends Sprite {
 		for(frame in frames){
 			bmd.draw(frame, new openfl.geom.Matrix(frame.scaleX, 0, 0, 1, frame.x, frame.y+drawOffset), new openfl.geom.ColorTransform(0, 0, 1, 1, 1, 1, 1, 1));
 		}
+		for(object in wallObjects){
+			bmd.draw(object, new openfl.geom.Matrix(object.scaleX, 0, 0, 1, object.x, object.y+drawOffset));
+		}
 
 		var lastAnchor:Anchor = anchors[anchors.length-1];
 		if(key.isDown(KeyObject.LEFT) || key.isDown(KeyObject.A)){
@@ -150,24 +153,26 @@ class Game extends Sprite {
 	var wallWindowsRight:Rectangle;
 	var wallPosters:Rectangle;
 	private function setupWalls(){
-		wallBricksLeft = new Rectangle(0, 0, walls.width/2, 60);
-		wallWindowsLeft = new Rectangle(0, 78, walls.width/2, 60);
-		wallBricksRight = new Rectangle(walls.width/2, 0, walls.width/2, 60);
-		wallWindowsRight = new Rectangle(walls.width/2, 78, walls.width/2, 60);
+		wallBricksLeft = new Rectangle(0, 0, walls.width/2, 72);
+		wallWindowsLeft = new Rectangle(0, 78, walls.width/2, 72);
+		wallBricksRight = new Rectangle(walls.width/2, 0, walls.width/2, 72);
+		wallWindowsRight = new Rectangle(walls.width/2, 78, walls.width/2, 72);
 		wallPosters = new Rectangle(0, 204, walls.width, 85);
 		wallOrderLeft = [];
 		wallOrderRight = [];
+		wallObjects = [];
 		generateWall();
 	}
 
 	var wallOrderLeft:Array<Int>;
 	var wallOrderRight:Array<Int>;
+	var wallObjects:Array<Frame>;
 	private function drawWalls(){		
 		//bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
 
 		for(i in 0...wallOrderLeft.length){
-			var p = 195-60*(i+1) + drawOffset;
+			var p = 195-wallWindowsLeft.height*(i+1) + drawOffset;
 			if(wallOrderLeft[i] == 0)
 				bmd.copyPixels(walls, wallBricksLeft, new Point(0, p), null, null, true);
 			else
@@ -187,7 +192,14 @@ class Game extends Sprite {
 			if(n == 1){
 				var f = new Frame("ledge.png");
 				f.x = 120;
-				f.y = 236-60*(i+1);
+				f.y = 236-wallWindowsLeft.height*(i+1);
+				frames.push(f);
+			}
+			if(i>0 && n==1 && wallOrderLeft[i-1] == 1){
+				var f = new Frame("fire_escape.png");
+				f.x = 120;
+				f.y = 208-wallWindowsLeft.height*(i+1);
+				wallObjects.push(f);
 				frames.push(f);
 			}
 		}
@@ -198,7 +210,7 @@ class Game extends Sprite {
 			if(n == 1){
 				var f = new Frame("ledge.png");
 				f.x = 280;
-				f.y = 236-60*(i+1);
+				f.y = 236-wallWindowsLeft.height*(i+1);
 				f.scaleX = -1;
 				frames.push(f);
 			}
