@@ -11,6 +11,7 @@ import openfl.Assets;
 
 import me.miltage.ld34.physics.Anchor;
 import openfl.geom.Point;
+import openfl.geom.Rectangle;
 
 class Game extends Sprite {
 
@@ -38,8 +39,8 @@ class Game extends Sprite {
 		key = new KeyObject(stage);
 
 		frames = [];
-			var f = new Frame("street_frame.png");
-			frames.push(f);
+		var f = new Frame("street_frame.png");
+		frames.push(f);
 
 		bmd = new BitmapData(400, 300, true, 0x00000000);
 		var b:Bitmap = new Bitmap(bmd);
@@ -49,6 +50,7 @@ class Game extends Sprite {
 		walls = Assets.getBitmapData("assets/walls.png");
 		backWalls = Assets.getBitmapData("assets/background.png");
 		street = Assets.getBitmapData("assets/street.png");
+		setupWalls();
 
 		oldAnchors = [];
 		anchors = [];
@@ -75,9 +77,9 @@ class Game extends Sprite {
 		bmd.fillRect(bmd.rect, 0x00000000);
 		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset/2));
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
-		bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
+		drawWalls();
 		for(frame in frames){
-			bmd.draw(frame, new openfl.geom.Matrix(1, 0, 0, 1, frame.x, frame.y+drawOffset), new openfl.geom.ColorTransform(0, 0, 1, 1, 1, 1, 1, 1));
+			bmd.draw(frame, new openfl.geom.Matrix(frame.scaleX, 0, 0, 1, frame.x, frame.y+drawOffset), new openfl.geom.ColorTransform(0, 0, 1, 1, 1, 1, 1, 1));
 		}
 
 		var lastAnchor:Anchor = anchors[anchors.length-1];
@@ -142,7 +144,64 @@ class Game extends Sprite {
 		}
 	}
 
-	private function makeWalls(){
-		
+	var wallBricksLeft:Rectangle;
+	var wallWindowsLeft:Rectangle;
+	var wallBricksRight:Rectangle;
+	var wallWindowsRight:Rectangle;
+	var wallPosters:Rectangle;
+	private function setupWalls(){
+		wallBricksLeft = new Rectangle(0, 0, walls.width/2, 60);
+		wallWindowsLeft = new Rectangle(0, 78, walls.width/2, 60);
+		wallBricksRight = new Rectangle(walls.width/2, 0, walls.width/2, 60);
+		wallWindowsRight = new Rectangle(walls.width/2, 78, walls.width/2, 60);
+		wallPosters = new Rectangle(0, 204, walls.width, 85);
+		wallOrderLeft = [];
+		wallOrderRight = [];
+		generateWall();
+	}
+
+	var wallOrderLeft:Array<Int>;
+	var wallOrderRight:Array<Int>;
+	private function drawWalls(){		
+		//bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
+		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
+
+		for(i in 0...wallOrderLeft.length){
+			var p = 195-60*(i+1) + drawOffset;
+			if(wallOrderLeft[i] == 0)
+				bmd.copyPixels(walls, wallBricksLeft, new Point(0, p), null, null, true);
+			else
+				bmd.copyPixels(walls, wallWindowsLeft, new Point(0, p), null, null, true);
+
+			if(wallOrderRight[i] == 0)
+				bmd.copyPixels(walls, wallBricksRight, new Point(200, p), null, null, true);
+			else
+				bmd.copyPixels(walls, wallWindowsRight, new Point(200, p), null, null, true);
+		}
+	}
+
+	private function generateWall(){
+		for(i in 0...10){
+			var n = Math.random()>.5?1:0;
+			wallOrderLeft.push(n);
+			if(n == 1){
+				var f = new Frame("ledge.png");
+				f.x = 120;
+				f.y = 236-60*(i+1);
+				frames.push(f);
+			}
+		}
+
+		for(i in 0...10){
+			var n = Math.random()>.5?1:0;
+			wallOrderRight.push(n);
+			if(n == 1){
+				var f = new Frame("ledge.png");
+				f.x = 280;
+				f.y = 236-60*(i+1);
+				f.scaleX = -1;
+				frames.push(f);
+			}
+		}
 	}
 }
