@@ -206,6 +206,7 @@ class Game extends Sprite {
 				var f = new Frame("fire_escape.png");
 				f.x = 120;
 				f.y = 208-wallWindowsLeft.height*(i+1);
+				if(i>1) f.setRect(new Rectangle(0, 0, f.width, f.height-29));
 				wallObjects.push(f);
 				frames.push(f);
 			}
@@ -227,6 +228,7 @@ class Game extends Sprite {
 				f.x = 280;
 				f.y = 208-wallWindowsLeft.height*(i+1);
 				f.scaleX = -1;
+				if(i>1) f.setRect(new Rectangle(0, 0, f.width, f.height-29));
 				wallObjects.push(f);
 				frames.push(f);
 			}
