@@ -94,6 +94,12 @@ class Game extends Sprite {
 			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x+diff.x, constraint.b.r.y+diff.y+drawOffset, 0xff5ea55d);
 		}
 
+		// draw background leaves
+		for(anchor in anchors.concat(oldAnchors)){
+			if(anchor.position == 1)
+				anchor.drawLeaf(bmd, drawOffset);
+		}
+
 		for(object in wallObjects){
 			bmd.draw(object, new openfl.geom.Matrix(object.scaleX, 0, 0, 1, object.x, object.y+drawOffset));
 		}
@@ -147,6 +153,12 @@ class Game extends Sprite {
 			var diff = constraint.b.r.subtract(constraint.a.r);
 			diff.normalize(1);
 			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x+diff.x, constraint.b.r.y+diff.y+drawOffset, 0xff5ea55d);
+		}
+
+		// draw foreground leaves
+		for(anchor in anchors.concat(oldAnchors)){
+			if(anchor.position == 0)
+				anchor.drawLeaf(bmd, drawOffset);
 		}
 
 		// check collision between vine and objects in alley
