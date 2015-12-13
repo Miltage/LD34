@@ -39,6 +39,7 @@ class Game extends Sprite {
 	var finished:Bool;
 
 	var drawOffset:Int;
+	var lastOffset:Int;
 	var walls:BitmapData;
 	var backWalls:BitmapData;
 	var street:BitmapData;
@@ -102,6 +103,7 @@ class Game extends Sprite {
 		angle = 270;
 		count = 0;
 		drawOffset = 0;
+		lastOffset = 0;
 		carCounter = 50;
 		finished = false;
 
@@ -268,6 +270,7 @@ class Game extends Sprite {
 		// flying birds
 		var bf = 2+Std.int(Math.random()*2);
 		if(Math.random()>.4 && drawAmbient){
+			for(i in 0...5)
 			ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
 				new Point(Math.random()*450-25, 264-Math.random()*(wallOrderLeft.length*80)+drawOffset), null, null, true);
 		}
@@ -342,9 +345,10 @@ class Game extends Sprite {
 		}
 
 
-		bmd.copyPixels(ambient, ambient.rect, new Point(), null, null, true);
+		bmd.copyPixels(ambient, ambient.rect, new Point(0, drawOffset-lastOffset), null, null, true);
 
 		if(drawAmbient){
+			lastOffset = drawOffset;
 			var ta = 1-(drawOffset-wallOrderLeft.length*72)/200;
 			var a = Math.min(ta, .05);
 			if(a<0) a = 0;
