@@ -92,6 +92,8 @@ class Game extends Sprite {
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		drawWalls();
 
+		var rooftopEdge = -wallOrderLeft.length*60+100;
+
 		// draw background vines
 		for(constraint in constraints){
 			//constraint.update();
@@ -103,8 +105,10 @@ class Game extends Sprite {
 
 		// draw background leaves
 		for(anchor in anchors.concat(oldAnchors)){
-			if(anchor.position == 1)
+			if(anchor.position == 1 && anchor.r.y > rooftopEdge)
 				anchor.drawLeaf(bmd, drawOffset);
+			else if(anchor.position == 1)
+				anchor.drawFlower(bmd, drawOffset);
 		}
 
 		for(object in wallObjects){
@@ -132,7 +136,6 @@ class Game extends Sprite {
 		lastConstraint.setLength(lastConstraint.getLength()+1);
 
 		var gravity = new Point(0, 0.1+0.006*anchors.length);
-		var rooftopEdge = -wallOrderLeft.length*60+100;
 
 		// update new anchors
 		for(anchor in anchors){
@@ -169,8 +172,10 @@ class Game extends Sprite {
 
 		// draw foreground leaves
 		for(anchor in anchors.concat(oldAnchors)){
-			if(anchor.position == 0)
+			if(anchor.position == 0 && anchor.r.y > rooftopEdge)
 				anchor.drawLeaf(bmd, drawOffset);
+			else if(anchor.position == 0)
+				anchor.drawFlower(bmd, drawOffset);
 		}
 
 		// check collision between vine and objects in alley
@@ -218,8 +223,6 @@ class Game extends Sprite {
 			var c = new Constraint(lastAnchor, a, -1);
 			constraints.push(c);
 		}
-
-		GraphicsUtil.drawLine(bmd, 0, rooftopEdge+drawOffset, 400, rooftopEdge+drawOffset, 0xffff0000);
 	}
 
 	var wallBricksLeft:Rectangle;

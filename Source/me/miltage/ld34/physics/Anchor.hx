@@ -15,13 +15,14 @@ class Anchor {
 	public var leafSize:Float = 0;
 	public var leafMaxSize:Float = 0;
 	public var connected:Bool = false;
+	public var flower:Bool = false;
 	public function new(x:Float, y:Float) {
 		r = new Point(x, y);
 		a = new Point();
 		old = r.clone();
 
 		leaf = Math.random() < .33;
-		leafMaxSize = 1+Math.random()*3;
+		leafMaxSize = 2+Math.random()*3;
 		leafSize = 0;
 	}
 	
@@ -57,6 +58,10 @@ class Anchor {
 
 	public function drawLeaf(bmd:BitmapData, dy:Int){
 		if(!leaf) return;
+		if(flower){
+			drawFlower(bmd, dy);
+			return;
+		}
 		var c:UInt = 0xff8EF084;
 		bmd.setPixel32(Std.int(r.x), Std.int(r.y)+dy, c);
 		bmd.setPixel32(Std.int(r.x), Std.int(r.y)+1+dy, c);
@@ -78,4 +83,29 @@ class Anchor {
 		bmd.setPixel32(Std.int(r.x), Std.int(r.y)+4+dy, c);
 	}
 
+	public function drawFlower(bmd:BitmapData, dy:Int){
+		if(!leaf) return;
+		flower = true;
+		var c:UInt = 0xffcc56d7;
+		bmd.setPixel32(Std.int(r.x), Std.int(r.y)+dy, c);
+		bmd.setPixel32(Std.int(r.x), Std.int(r.y)+1+dy, c);
+		if(leafSize < 2) return;
+		bmd.setPixel32(Std.int(r.x), Std.int(r.y)+dy, 0xfff2f51e);
+		bmd.setPixel32(Std.int(r.x), Std.int(r.y)-1+dy, c);
+		bmd.setPixel32(Std.int(r.x)+1, Std.int(r.y)+dy, c);
+		bmd.setPixel32(Std.int(r.x)-1, Std.int(r.y)+dy, c);
+		bmd.setPixel32(Std.int(r.x)+2, Std.int(r.y)+dy, c);
+		bmd.setPixel32(Std.int(r.x)-2, Std.int(r.y)+dy, c);
+		if(leafSize < 3) return;
+		bmd.setPixel32(Std.int(r.x)+1, Std.int(r.y)+dy+1, c);
+		bmd.setPixel32(Std.int(r.x)-1, Std.int(r.y)+dy+1, c);
+		bmd.setPixel32(Std.int(r.x)+1, Std.int(r.y)+dy-1, c);
+		bmd.setPixel32(Std.int(r.x)-1, Std.int(r.y)+dy-1, c);
+		bmd.setPixel32(Std.int(r.x)+1, Std.int(r.y)+dy+2, c);
+		bmd.setPixel32(Std.int(r.x)-1, Std.int(r.y)+dy+2, c);
+		if(leafSize < 4) return;
+		bmd.setPixel32(Std.int(r.x), Std.int(r.y)+2+dy, c);
+		bmd.setPixel32(Std.int(r.x), Std.int(r.y)+3+dy, c);
+		bmd.setPixel32(Std.int(r.x), Std.int(r.y)-2+dy, c);
+	}
 }
