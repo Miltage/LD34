@@ -35,6 +35,8 @@ class Game extends Sprite {
 	var walls:BitmapData;
 	var backWalls:BitmapData;
 	var street:BitmapData;
+	var rooftops:BitmapData;
+	var sky:BitmapData;
 	
 	public function new(stage:Stage) {
 		super();
@@ -53,6 +55,8 @@ class Game extends Sprite {
 		walls = Assets.getBitmapData("assets/walls.png");
 		backWalls = Assets.getBitmapData("assets/background.png");
 		street = Assets.getBitmapData("assets/street.png");
+		rooftops = Assets.getBitmapData("assets/rooftops.png");
+		sky = Assets.getBitmapData("assets/rooftop_bg.png");
 		setupWalls();
 
 		oldAnchors = [];
@@ -128,14 +132,17 @@ class Game extends Sprite {
 		lastConstraint.setLength(lastConstraint.getLength()+1);
 
 		var gravity = new Point(0, 0.1+0.006*anchors.length);
+		var rooftopEdge = -wallOrderLeft.length*60+100;
 
 		// update new anchors
 		for(anchor in anchors){
 			anchor.forces.push(gravity);
 			anchor.update();
 			if(anchor.r.y > 280) anchor.r.y = 280;
-			if(anchor.r.x < 120) anchor.r.x = 120;
-			else if(anchor.r.x > 280) anchor.r.x = 280;
+			else if(anchor.r.y > rooftopEdge+4 && anchor.r.x < 120) anchor.r.x = 120;
+			else if(anchor.r.y > rooftopEdge+4 && anchor.r.x > 280) anchor.r.x = 280;
+			else if(anchor.r.y > rooftopEdge && anchor.r.x < 120) anchor.r.y = rooftopEdge;
+			else if(anchor.r.y > rooftopEdge && anchor.r.x > 280) anchor.r.y = rooftopEdge;
 			//GraphicsUtil.drawCircle(bmd, anchor.r.x, anchor.r.y+drawOffset, 2, 0xff61a45a, true);
 		}
 
@@ -143,8 +150,10 @@ class Game extends Sprite {
 		for(anchor in oldAnchors){
 			if(anchor.r.y+drawOffset > 400 || anchor.r.y+drawOffset < -100)	continue;
 			if(anchor.r.y > 280) anchor.r.y = 280;
-			if(anchor.r.x < 120) anchor.r.x = 120;
-			else if(anchor.r.x > 280) anchor.r.x = 280;
+			else if(anchor.r.y > rooftopEdge+4 && anchor.r.x < 120) anchor.r.x = 120;
+			else if(anchor.r.y > rooftopEdge+4 && anchor.r.x > 280) anchor.r.x = 280;
+			else if(anchor.r.y > rooftopEdge && anchor.r.x < 120) anchor.r.y = rooftopEdge;
+			else if(anchor.r.y > rooftopEdge && anchor.r.x > 280) anchor.r.y = rooftopEdge;
 			anchor.forces.push(gravity);
 			anchor.update();
 		}
@@ -209,6 +218,8 @@ class Game extends Sprite {
 			var c = new Constraint(lastAnchor, a, -1);
 			constraints.push(c);
 		}
+
+		GraphicsUtil.drawLine(bmd, 0, rooftopEdge+drawOffset, 400, rooftopEdge+drawOffset, 0xffff0000);
 	}
 
 	var wallBricksLeft:Rectangle;
@@ -253,6 +264,7 @@ class Game extends Sprite {
 	var wallObjects:Array<Frame>;
 	private function drawWalls(){		
 		//bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
+		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*20-262+drawOffset/2));
 		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
 
 		for(i in 0...wallOrderLeft.length){
@@ -271,22 +283,30 @@ class Game extends Sprite {
 				bmd.copyPixels(walls, wallWindowsRight, new Point(200, p), null, null, true);
 			}
 		}
+		
+		bmd.draw(rooftops, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*60+3+drawOffset));
 	}
 
 	private function generateWall(){
-		for(i in 0...35){
+		for(i in 0...5){
 			var n = Math.random()>.5?1:0;
 			wallOrderLeft.push(n);
 			genPiece(n, i, 0);
 		}
 
-		for(i in 0...35){
+		for(i in 0...5){
 			var n = Math.random()>.5?1:0;
 			// easy mode - always something to climb
 			if(wallOrderLeft[i] == 0) n == 1;
 			wallOrderRight.push(n);
 			genPiece(n, i, 1);
 		}
+
+		var f = new Frame("rooftops.png");
+		f.x = 0;
+		f.y = -wallOrderLeft.length*60+3;
+		wallObjects.push(f);
+		frames.push(f);
 	}
 
 	private function genPiece(n:Int, i:Int, side:Int){
@@ -314,7 +334,7 @@ class Game extends Sprite {
 			frames.push(f);
 		} else if (n == 0 && Math.random() < .4){
 			var f = new Frame("satellite.png");
-			f.x = 120+side*160;
+			f.x = 118+side*164;
 			f.y = 200-wallWindowsLeft.height*(i+1);
 			f.scaleX = side==0?1:-1;
 			wallObjects.push(f);
