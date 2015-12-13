@@ -377,18 +377,12 @@ class Game extends Sprite {
 		bmd.copyPixels(ambient, ambient.rect, new Point(0, drawOffset-lastOffset), null, null, true);
 
 		if(drawAmbient){
-			/*lastOffset = drawOffset;
-			var ta = 1-(drawOffset-wallOrderLeft.length*72)/200;
-			var a = Math.min(ta, .1);
-			if(a<0) a = 0;
-			var alphaBitmap:BitmapData = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, a));
-			bmd.copyPixels(black, black.rect, new Point(), alphaBitmap, null, true);*/
-			filter.alpha = .25;
+			filter.alpha = 0;
 			var red:Float = 200+Math.floor(Math.random()*55);
 			var green:Float = 255;//+Math.floor(Math.random()*255);
 			var blue:Float = 255;//+Math.floor(Math.random()*255);
 			var color:UInt = 255 << 24 | Std.int(red) << 16 | Std.int(green) << 8 | Std.int(blue);
-			fbmd.fillRect(fbmd.rect, color);
+			//fbmd.fillRect(fbmd.rect, color);
 			filter.blendMode = openfl.display.BlendMode.OVERLAY;
 		}
 
