@@ -377,12 +377,12 @@ class Game extends Sprite {
 		bmd.copyPixels(ambient, ambient.rect, new Point(0, drawOffset-lastOffset), null, null, true);
 
 		if(drawAmbient){
-			filter.alpha = 0;
-			var red:Float = 200+Math.floor(Math.random()*55);
-			var green:Float = 255;//+Math.floor(Math.random()*255);
-			var blue:Float = 255;//+Math.floor(Math.random()*255);
+			filter.alpha = Math.random()*.2;
+			var red:Float = Math.floor(Math.random()*40);
+			var green:Float = Math.floor(Math.random()*40);
+			var blue:Float = Math.floor(Math.random()*40);
 			var color:UInt = 255 << 24 | Std.int(red) << 16 | Std.int(green) << 8 | Std.int(blue);
-			//fbmd.fillRect(fbmd.rect, color);
+			fbmd.fillRect(fbmd.rect, color);
 			filter.blendMode = openfl.display.BlendMode.OVERLAY;
 		}
 
