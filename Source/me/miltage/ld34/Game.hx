@@ -78,6 +78,20 @@ class Game extends Sprite {
 		drawOffset = 0;
 
 		addEventListener(Event.ENTER_FRAME, tick);
+
+		// sim hanging lines
+		for(i in 0...200){
+			// update hanging anchors
+			for(anchor in miscAnchors){
+				anchor.forces.push(new Point(0, 0.025));
+				anchor.update();
+			}
+
+			// draw hanging lines
+			for(constraint in miscConstraints){
+				constraint.update();
+			}
+		}
 	}
 
 	public function tick(e:Event){
