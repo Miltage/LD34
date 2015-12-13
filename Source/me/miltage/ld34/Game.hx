@@ -241,15 +241,18 @@ class Game extends Sprite {
 		wallObjects = [];
 		generateWall();
 
+		var rooftopEdge = -wallOrderLeft.length*60+100;
+		// gen hanging lines
 		miscAnchors = [];
 		miscConstraints = [];
 		var liney = 100;
 		for(i in 0...10){
 			var a:Anchor = new Anchor(120, liney);
+			liney += Std.int(Math.random()*50-25);
+			if(liney < rooftopEdge) break;
 			var b:Anchor = null;
 			a.anchored = true;
 			miscAnchors.push(a);
-			liney += Std.int(Math.random()*50-25);
 			for(j in 0...10){
 				b = new Anchor(a.r.x + 16, liney);
 				miscAnchors.push(b);
