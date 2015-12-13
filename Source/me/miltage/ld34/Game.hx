@@ -18,6 +18,7 @@ class Game extends Sprite {
 
 	public static var MOVE_SPEED:Float = 2;
 	public static var TURN_SPEED:Float = 10;
+	public static var SHUTTER_SPEED:Float = 3;
 
 	var bmd:BitmapData;
 	var black:BitmapData;
@@ -52,8 +53,9 @@ class Game extends Sprite {
 	var title:BitmapData;
 	var end:BitmapData;
 	var buttons:BitmapData;
+	var fbmd:BitmapData;
 
-	var titleCard:Bitmap;
+	var filter:Sprite;
 	
 	public function new(stage:Stage) {
 		super();
@@ -66,11 +68,17 @@ class Game extends Sprite {
 
 		bmd = new BitmapData(400, 300, true, 0x00000000);
 		black = new BitmapData(400, 300, true, 0xff000000);
-		ambient = new BitmapData(400, 300, true, 0x00000000);
+		ambient = new BitmapData(400, 400, true, 0x00000000);
 		ambientWindows = new BitmapData(400, 300, true, 0x00000000);
 		var b:Bitmap = new Bitmap(bmd);
 		b.scaleX = b.scaleY = 2;
 		addChild(b);
+
+		filter = new Sprite();
+		fbmd = new BitmapData(400, 300, true, 0xffffffff);
+		filter.addChild(new Bitmap(fbmd));
+		filter.scaleX = filter.scaleY = 2;
+		addChild(filter);
 
 		walls = Assets.getBitmapData("assets/walls.png");
 		backWalls = Assets.getBitmapData("assets/background.png");
@@ -134,9 +142,14 @@ class Game extends Sprite {
 		bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, bwp+152));
 		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, Std.int(drawOffset/2)));
 		// end back wall
-		bmd.fillRect(new Rectangle(0, 0, 120, 300), 0xff3d3c39);
-		bmd.fillRect(new Rectangle(280, 0, 120, 300), 0xff3d3c39);
+		bmd.fillRect(new Rectangle(0, 0, 400, -wallOrderLeft.length*40+3+drawOffset/2+5), 0xff75cdcf);
+		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*40+3+drawOffset/2));
+		bmd.fillRect(new Rectangle(0, -wallOrderLeft.length*67+drawOffset, 119, 3000), 0xff3d3c39);
+		bmd.fillRect(new Rectangle(281, -wallOrderLeft.length*67+drawOffset, 120, 3000), 0xff3d3c39);
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
+		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
+
+		if(count%SHUTTER_SPEED == 0) lastOffset = drawOffset;
 		drawWalls();
 
 		var rooftopEdge = -wallOrderLeft.length*72+160;
@@ -261,10 +274,9 @@ class Game extends Sprite {
 		//GraphicsUtil.drawLine(bmd, 0, rooftopEdge+drawOffset, 400, rooftopEdge+drawOffset, 0xffff0000);
 
 		
-		var drawAmbient = count%3 == 0;
+		var drawAmbient = count%SHUTTER_SPEED == 0;
 		if(drawAmbient){
 			ambient.fillRect(ambient.rect, 0x00000000);
-			ambientWindows.fillRect(ambient.rect, 0x00000000);
 		}
 
 		// flying birds
@@ -281,7 +293,7 @@ class Game extends Sprite {
 			bf = Std.int(Math.random()*2);
 			var birdy = 264; // floor
 			var birdx = Math.random()*450-25; // anywhere
-			if(Math.random()>.1){
+			if(Math.random()>.25){
 				var valid = false;
 				if(Math.random()>.7){
 					// on roof
@@ -308,18 +320,36 @@ class Game extends Sprite {
 					new Point(birdx, birdy+drawOffset), null, null, true);
 		}
 
+		// birds on wires
+		if(drawAmbient)
+		for(i in 0...3){
+			bf = Std.int(Math.random()*2);
+
+			var a:Anchor = miscAnchors[Std.int(Math.random()*miscAnchors.length)];
+
+			var birdx = a.r.x-16;
+			var birdy = a.r.y-22;
+
+			ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
+					new Point(birdx, birdy+drawOffset), null, null, true);
+		}
+
 		// draw street people
-		var pf = Std.int(Math.random()*7);
 		people = GraphicsUtil.flipBitmapData(people);
 		if(Math.random()>.3 && drawAmbient){
-			for(i in 0...Std.int(Math.random()*3))
-			ambient.copyPixels(people, new Rectangle(64*pf, 0, 64, 96), new Point(Math.random()*450-25, 194+drawOffset), null, null, true);
+			for(i in 0...Std.int(Math.random()*3)){
+				var pf = Std.int(Math.random()*7);
+				ambient.copyPixels(people, new Rectangle(64*pf, 0, 64, 96), new Point(Math.random()*450-25, 194+drawOffset), null, null, true);
+			}
 		}
 
 		// draw cars
-		var cf = Math.random()<.5?1:0;
-		cars = GraphicsUtil.flipBitmapData(cars);
-		ambient.copyPixels(cars, new Rectangle(153*pf, 0, 153, 64), new Point(Math.random()*500-50, 235+drawOffset), null, null, true);
+		if(drawAmbient){
+			var cf = Math.random()<.05?1:0;
+			cars = GraphicsUtil.flipBitmapData(cars);
+			var pf = Std.int(Math.random()*2);
+			ambient.copyPixels(cars, new Rectangle(153*pf, 0, 153, 64), new Point(Math.random()*500-50, 235+drawOffset), null, null, true);
+		}
 
 		if(carCounter > 0) carCounter--;
 		else if(carCounter < 0 && drawAmbient){
@@ -344,16 +374,22 @@ class Game extends Sprite {
 			drawOffset++;
 		}
 
-
 		bmd.copyPixels(ambient, ambient.rect, new Point(0, drawOffset-lastOffset), null, null, true);
 
 		if(drawAmbient){
-			lastOffset = drawOffset;
+			/*lastOffset = drawOffset;
 			var ta = 1-(drawOffset-wallOrderLeft.length*72)/200;
-			var a = Math.min(ta, .05);
+			var a = Math.min(ta, .1);
 			if(a<0) a = 0;
 			var alphaBitmap:BitmapData = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, a));
-			bmd.copyPixels(black, black.rect, new Point(), alphaBitmap, null, true);
+			bmd.copyPixels(black, black.rect, new Point(), alphaBitmap, null, true);*/
+			filter.alpha = .25;
+			var red:Float = 200+Math.floor(Math.random()*55);
+			var green:Float = 255;//+Math.floor(Math.random()*255);
+			var blue:Float = 255;//+Math.floor(Math.random()*255);
+			var color:UInt = 255 << 24 | Std.int(red) << 16 | Std.int(green) << 8 | Std.int(blue);
+			fbmd.fillRect(fbmd.rect, color);
+			filter.blendMode = openfl.display.BlendMode.OVERLAY;
 		}
 
 		// draw keys
@@ -417,12 +453,10 @@ class Game extends Sprite {
 	var wallOrderLeft:Array<Int>;
 	var wallOrderRight:Array<Int>;
 	var wallObjects:Array<Frame>;
-	private function drawWalls(){		
-		//bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
-		bmd.fillRect(new Rectangle(0, 0, 400, -wallOrderLeft.length*40+3+drawOffset/2+5), 0xff75cdcf);
-		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*40+3+drawOffset/2));
-		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
+	private function drawWalls(){
 
+		if(count%SHUTTER_SPEED == 0) 
+			ambientWindows.fillRect(ambient.rect, 0x00000000);
 		
 		var ea = (drawOffset-wallOrderLeft.length*84)/100;
 		if(ea < 0) ea = 0;
@@ -448,15 +482,17 @@ class Game extends Sprite {
 			if(wallOrderLeft[i] == 1){
 				var pf = Std.int(Math.random()*7);
 				if(pf == 3) pf = 0; // umbrellas inside are bad luck!
-				if(count%3==0 && Math.random()<.2) ambientWindows.copyPixels(people, new Rectangle(pf*64, 0, 64, 50), new Point(Math.random()*100-50, p), null, null, true);
+				if(count%SHUTTER_SPEED==0 && Math.random()>.8)
+					ambientWindows.copyPixels(people, new Rectangle(pf*64, 0, 64, 50), new Point(Math.random()*100-50, p), null, null, true);
 			}
 			if(wallOrderRight[i] == 1){
 				var pf = Std.int(Math.random()*7);
 				if(pf == 3) pf = 0; // umbrellas inside are bad luck!
-				if(count%3==0 && Math.random()<.2) ambientWindows.copyPixels(people, new Rectangle(pf*64, 0, 64, 50), new Point(Math.random()*100+300, p), null, null, true);
+				if(count%SHUTTER_SPEED==0 && Math.random()>.8) 
+					ambientWindows.copyPixels(people, new Rectangle(pf*64, 0, 64, 50), new Point(Math.random()*100+300, p), null, null, true);
 			}
 		}
-		bmd.copyPixels(ambientWindows, ambientWindows.rect, new Point(), null, null, true);
+		bmd.copyPixels(ambientWindows, ambientWindows.rect, new Point(0, drawOffset-lastOffset), null, null, true);
 
 		for(i in 0...wallOrderLeft.length){
 			var p = 195-wallWindowsLeft.height*(i+1) + drawOffset;
@@ -479,7 +515,6 @@ class Game extends Sprite {
 	private function generateWall(){
 		for(i in 0...35){
 			var n = Math.random()>.5?1:0;
-			n = 1;
 			wallOrderLeft.push(n);
 			genPiece(n, i, 0);
 		}
