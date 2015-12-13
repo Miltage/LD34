@@ -30,6 +30,9 @@ class Game extends Sprite {
 	var frames:Array<Frame>;
 	var angle:Float;
 	var count:Int;
+	var carCounter:Int;
+	var carPos:Int;
+	var carType:Int;
 
 	var drawOffset:Int;
 	var walls:BitmapData;
@@ -37,6 +40,9 @@ class Game extends Sprite {
 	var street:BitmapData;
 	var rooftops:BitmapData;
 	var sky:BitmapData;
+	var people:BitmapData;
+	var cars:BitmapData;
+	var cars2:BitmapData;
 	
 	public function new(stage:Stage) {
 		super();
@@ -57,6 +63,9 @@ class Game extends Sprite {
 		street = Assets.getBitmapData("assets/street.png");
 		rooftops = Assets.getBitmapData("assets/rooftops.png");
 		sky = Assets.getBitmapData("assets/rooftop_bg.png");
+		people = Assets.getBitmapData("assets/street_people.png");
+		cars = Assets.getBitmapData("assets/cars.png");
+		cars2 = Assets.getBitmapData("assets/cars.png");
 		setupWalls();
 
 		oldAnchors = [];
@@ -76,6 +85,7 @@ class Game extends Sprite {
 		angle = 270;
 		count = 0;
 		drawOffset = 0;
+		carCounter = 50;
 
 		addEventListener(Event.ENTER_FRAME, tick);
 
@@ -226,6 +236,35 @@ class Game extends Sprite {
 		}
 
 		//GraphicsUtil.drawLine(bmd, 0, rooftopEdge+drawOffset, 400, rooftopEdge+drawOffset, 0xffff0000);
+
+		// draw street people
+		var pf = Std.int(Math.random()*7);
+		people = GraphicsUtil.flipBitmapData(people);
+		if(Math.random()>.3){
+			for(i in 0...Std.int(Math.random()*3))
+			bmd.copyPixels(people, new Rectangle(64*pf, 0, 64, 96), new Point(Math.random()*450-25, 194+drawOffset), null, null, true);
+		}
+
+		// draw cars
+		var cf = Math.random()<.5?1:0;
+		cars = GraphicsUtil.flipBitmapData(cars);
+		bmd.copyPixels(cars, new Rectangle(153*pf, 0, 153, 64), new Point(Math.random()*500-50, 235+drawOffset), null, null, true);
+
+		if(carCounter > 0) carCounter--;
+		else if(carCounter < 0){
+			// draw lingering car
+			bmd.copyPixels(cars2, new Rectangle(153*carType, 0, 153, 64), new Point(carPos, 235+drawOffset), null, null, true);
+
+			carCounter++;
+			if(carCounter == 0)
+				carCounter = Std.int(Math.random()*150+20);
+		}
+		else {
+			carPos = Std.int(Math.random()*500-50);
+			carType = Math.random()>.5?1:0;
+			carCounter = Std.int(-20-Math.random()*200);
+			if(Math.random()>.5) cars = GraphicsUtil.flipBitmapData(cars);
+		}
 
 		drawOffset = Std.int(150-lastAnchor.r.y);
 		if(drawOffset < 0) drawOffset = 0;

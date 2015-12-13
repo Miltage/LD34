@@ -1,5 +1,8 @@
 package me.miltage.ld34;
 
+import openfl.display.BitmapData;
+import openfl.geom.Matrix;
+
 class GraphicsUtil {
 	
 	public static function drawLine (bmd:openfl.display.BitmapData, xx0:Float, yy0:Float, xx1:Float, yy1:Float, color:Int) {
@@ -223,7 +226,19 @@ class GraphicsUtil {
 		return HexToARGB(hex)[0];
 	}
 
-	public static function getAlphaBmd(bmd:openfl.display.BitmapData, x:Float, y:Float){
+	public static function getAlphaBmd(bmd:BitmapData, x:Float, y:Float){
 		return HexToARGB(bmd.getPixel32(Std.int(x), Std.int(y)))[0];
+	}
+
+	public static function flipBitmapData(original:BitmapData, axis:String = "x"):BitmapData {
+		var flipped:BitmapData = new BitmapData(original.width, original.height, true, 0);
+     	var matrix:Matrix;
+     	if(axis == "x"){
+          	matrix = new Matrix( -1, 0, 0, 1, original.width, 0);
+     	} else {
+          	matrix = new Matrix( 1, 0, 0, -1, 0, original.height);
+     	}
+     	flipped.draw(original, matrix, null, null, null, true);
+     	return flipped;
 	}
 }
