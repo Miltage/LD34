@@ -47,6 +47,7 @@ class Game extends Sprite {
 	var cars2:BitmapData;
 	var birds:BitmapData;
 	var title:BitmapData;
+	var end:BitmapData;
 
 	var titleCard:Bitmap;
 	
@@ -60,7 +61,7 @@ class Game extends Sprite {
 		frames.push(f);
 
 		bmd = new BitmapData(400, 300, true, 0x00000000);
-		black = new BitmapData(400, 300, true, 0x11000000);
+		black = new BitmapData(400, 300, true, 0xff000000);
 		var b:Bitmap = new Bitmap(bmd);
 		b.scaleX = b.scaleY = 2;
 		addChild(b);
@@ -75,7 +76,7 @@ class Game extends Sprite {
 		cars2 = Assets.getBitmapData("assets/cars.png");
 		birds = Assets.getBitmapData("assets/birds.png");
 		title = Assets.getBitmapData("assets/titlecard.png");
-		titleCard = new Bitmap(title);
+		end = Assets.getBitmapData("assets/end.png");
 		setupWalls();
 
 		oldAnchors = [];
@@ -324,7 +325,11 @@ class Game extends Sprite {
 		}
 
 		if(count%2==0){
-			bmd.draw(black, new openfl.geom.Matrix(1, 0, 0, 1, 0, 0));
+			var ta = 1-(drawOffset-wallOrderLeft.length*72)/200;
+			var a = Math.min(ta, .1);
+			if(a<0) a = 0;
+			var alphaBitmap:BitmapData = new BitmapData(title.width, title.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, a));
+			bmd.copyPixels(black, black.rect, new Point(), alphaBitmap, null, true);
 		}
 
 		count++;
@@ -386,6 +391,15 @@ class Game extends Sprite {
 		bmd.fillRect(new Rectangle(0, 0, 400, -wallOrderLeft.length*40+3+drawOffset/2+5), 0xff75cdcf);
 		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*40+3+drawOffset/2));
 		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
+
+		
+		var ea = (drawOffset-wallOrderLeft.length*84)/100;
+		if(ea < 0) ea = 0;
+		else if(ea > 1) ea = 1;
+
+		// draw end
+		var alphaBitmap:BitmapData = new BitmapData(end.width, end.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, ea));
+		bmd.copyPixels(end, end.rect, new Point(200-end.width/2, 150-end.height/2), alphaBitmap, null, true);
 
 		// draw title card
 		var ta = (drawOffset-wallOrderLeft.length*72)/100;
