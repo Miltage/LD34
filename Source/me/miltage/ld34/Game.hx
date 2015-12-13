@@ -34,6 +34,7 @@ class Game extends Sprite {
 	var carCounter:Int;
 	var carPos:Int;
 	var carType:Int;
+	var finished:Bool;
 
 	var drawOffset:Int;
 	var walls:BitmapData;
@@ -95,6 +96,7 @@ class Game extends Sprite {
 		count = 0;
 		drawOffset = 0;
 		carCounter = 50;
+		finished = false;
 
 		addEventListener(Event.ENTER_FRAME, tick);
 
@@ -314,8 +316,12 @@ class Game extends Sprite {
 			if(Math.random()>.5) cars = GraphicsUtil.flipBitmapData(cars);
 		}
 
-		drawOffset = Std.int(150-lastAnchor.r.y);
-		if(drawOffset < 0) drawOffset = 0;
+		if(!finished){
+			drawOffset = Std.int(150-lastAnchor.r.y);
+			if(drawOffset < 0) drawOffset = 0;
+		} else {
+			drawOffset++;
+		}
 
 		if(count%2==0){
 			bmd.draw(black, new openfl.geom.Matrix(1, 0, 0, 1, 0, 0));
@@ -377,14 +383,17 @@ class Game extends Sprite {
 	var wallObjects:Array<Frame>;
 	private function drawWalls(){		
 		//bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
+		bmd.fillRect(new Rectangle(0, 0, 400, -wallOrderLeft.length*40+3+drawOffset/2+5), 0xff75cdcf);
 		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*40+3+drawOffset/2));
 		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
 
 		// draw title card
 		var ta = (drawOffset-wallOrderLeft.length*72)/100;
-		trace(ta);
 		if(ta < 0) ta = 0;
-		else if(ta > 1) ta = 1;
+		else if(ta > 1){
+			ta = 1;
+			finished = true;
+		}
 		var alphaBitmap:BitmapData = new BitmapData(title.width, title.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, ta));
 		bmd.copyPixels(title, title.rect, new Point(0, -wallOrderLeft.length*40+3+drawOffset/2), alphaBitmap, null, true);
 
