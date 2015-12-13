@@ -22,6 +22,7 @@ class Game extends Sprite {
 	var bmd:BitmapData;
 	var black:BitmapData;
 	var ambient:BitmapData;
+	var ambientWindows:BitmapData;
 	var key:KeyObject;
 
 	var anchors:Array<Anchor>;
@@ -65,6 +66,7 @@ class Game extends Sprite {
 		bmd = new BitmapData(400, 300, true, 0x00000000);
 		black = new BitmapData(400, 300, true, 0xff000000);
 		ambient = new BitmapData(400, 300, true, 0x00000000);
+		ambientWindows = new BitmapData(400, 300, true, 0x00000000);
 		var b:Bitmap = new Bitmap(bmd);
 		b.scaleX = b.scaleY = 2;
 		addChild(b);
@@ -130,6 +132,8 @@ class Game extends Sprite {
 		bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, bwp+152));
 		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, Std.int(drawOffset/2)));
 		// end back wall
+		bmd.fillRect(new Rectangle(0, 0, 120, 300), 0xff3d3c39);
+		bmd.fillRect(new Rectangle(280, 0, 120, 300), 0xff3d3c39);
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		drawWalls();
 
@@ -256,7 +260,10 @@ class Game extends Sprite {
 
 		
 		var drawAmbient = count%3 == 0;
-		if(drawAmbient) ambient.fillRect(ambient.rect, 0x00000000);
+		if(drawAmbient){
+			ambient.fillRect(ambient.rect, 0x00000000);
+			ambientWindows.fillRect(ambient.rect, 0x00000000);
+		}
 
 		// flying birds
 		var bf = 2+Std.int(Math.random()*2);
@@ -431,19 +438,33 @@ class Game extends Sprite {
 		var alphaBitmap:BitmapData = new BitmapData(title.width, title.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, ta));
 		bmd.copyPixels(title, title.rect, new Point(0, -wallOrderLeft.length*40+3+drawOffset/2), alphaBitmap, null, true);
 
+		// draw people in windows
+		for(i in 0...wallOrderLeft.length){
+			var p = 195-wallWindowsLeft.height*(i+1) + drawOffset;
+			if(wallOrderLeft[i] == 1){
+				var pf = Std.int(Math.random()*7);
+				if(pf == 3) pf = 0; // umbrellas inside are bad luck!
+				if(count%3==0 && Math.random()<.2) ambientWindows.copyPixels(people, new Rectangle(pf*64, 0, 64, 50), new Point(Math.random()*100-50, p), null, null, true);
+			}
+			if(wallOrderRight[i] == 1){
+				var pf = Std.int(Math.random()*7);
+				if(pf == 3) pf = 0; // umbrellas inside are bad luck!
+				if(count%3==0 && Math.random()<.2) ambientWindows.copyPixels(people, new Rectangle(pf*64, 0, 64, 50), new Point(Math.random()*100+300, p), null, null, true);
+			}
+		}
+		bmd.copyPixels(ambientWindows, ambientWindows.rect, new Point(), null, null, true);
+
 		for(i in 0...wallOrderLeft.length){
 			var p = 195-wallWindowsLeft.height*(i+1) + drawOffset;
 			if(wallOrderLeft[i] == 0)
 				bmd.copyPixels(walls, wallBricksLeft, new Point(0, p), null, null, true);
 			else{
-				bmd.fillRect(new Rectangle(0, p, 100, 50), 0xff3d3c39);
 				bmd.copyPixels(walls, wallWindowsLeft, new Point(0, p), null, null, true);
 			}
 
 			if(wallOrderRight[i] == 0)
 				bmd.copyPixels(walls, wallBricksRight, new Point(200, p), null, null, true);
 			else{
-				bmd.fillRect(new Rectangle(300, p, 100, 50), 0xff3d3c39);
 				bmd.copyPixels(walls, wallWindowsRight, new Point(200, p), null, null, true);
 			}
 		}
@@ -454,6 +475,7 @@ class Game extends Sprite {
 	private function generateWall(){
 		for(i in 0...35){
 			var n = Math.random()>.5?1:0;
+			n = 1;
 			wallOrderLeft.push(n);
 			genPiece(n, i, 0);
 		}
