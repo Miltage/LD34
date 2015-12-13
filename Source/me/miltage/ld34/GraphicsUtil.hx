@@ -222,6 +222,14 @@ class GraphicsUtil {
 	    return rgb;
 	}
 
+	public static function ARGBToHex(r:Float, g:Float, b:Float, a:Float):UInt {
+		r *= 255;
+		g *= 255;
+		b *= 255;
+		a *= 255;
+		return Std.int(a) << 24 | Std.int(r) << 16 | Std.int(g) << 8 | Std.int(b);
+	}
+
 	public static function getAlpha(hex:Int){
 		return HexToARGB(hex)[0];
 	}
