@@ -106,7 +106,7 @@ class Game extends Sprite {
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		drawWalls();
 
-		var rooftopEdge = -wallOrderLeft.length*60+100;
+		var rooftopEdge = -wallOrderLeft.length*72+160;
 
 		// draw background vines
 		for(constraint in constraints){
@@ -225,6 +225,8 @@ class Game extends Sprite {
 			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x+diff.x, constraint.b.r.y+diff.y+drawOffset, 0xff1f1e1b);
 		}
 
+		//GraphicsUtil.drawLine(bmd, 0, rooftopEdge+drawOffset, 400, rooftopEdge+drawOffset, 0xffff0000);
+
 		drawOffset = Std.int(150-lastAnchor.r.y);
 		if(drawOffset < 0) drawOffset = 0;
 
@@ -255,7 +257,7 @@ class Game extends Sprite {
 		wallObjects = [];
 		generateWall();
 
-		var rooftopEdge = -wallOrderLeft.length*60+100;
+		var rooftopEdge = -wallOrderLeft.length*72+160;
 		// gen hanging lines
 		miscAnchors = [];
 		miscConstraints = [];
@@ -284,7 +286,7 @@ class Game extends Sprite {
 	var wallObjects:Array<Frame>;
 	private function drawWalls(){		
 		//bmd.draw(walls, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
-		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*20-262+drawOffset/2));
+		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*40+3+drawOffset/2));
 		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
 
 		for(i in 0...wallOrderLeft.length){
@@ -304,27 +306,28 @@ class Game extends Sprite {
 			}
 		}
 		
-		bmd.draw(rooftops, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*60+3+drawOffset));
+		bmd.draw(rooftops, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*72+57+drawOffset));
 	}
 
 	private function generateWall(){
-		for(i in 0...5){
+		for(i in 0...35){
 			var n = Math.random()>.5?1:0;
 			wallOrderLeft.push(n);
 			genPiece(n, i, 0);
 		}
 
-		for(i in 0...5){
+		for(i in 0...35){
 			var n = Math.random()>.5?1:0;
 			// easy mode - always something to climb
-			if(wallOrderLeft[i] == 0) n == 1;
+			if(wallOrderLeft[i] == 0) n = 1;
+			else if(Math.random()>.5) n = 0;
 			wallOrderRight.push(n);
 			genPiece(n, i, 1);
 		}
 
 		var f = new Frame("rooftops.png");
 		f.x = 0;
-		f.y = -wallOrderLeft.length*60+3;
+		f.y = -wallOrderLeft.length*72+57;
 		wallObjects.push(f);
 		frames.push(f);
 	}
