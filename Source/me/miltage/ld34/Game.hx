@@ -21,6 +21,7 @@ class Game extends Sprite {
 
 	var bmd:BitmapData;
 	var black:BitmapData;
+	var ambient:BitmapData;
 	var key:KeyObject;
 
 	var anchors:Array<Anchor>;
@@ -63,6 +64,7 @@ class Game extends Sprite {
 
 		bmd = new BitmapData(400, 300, true, 0x00000000);
 		black = new BitmapData(400, 300, true, 0xff000000);
+		ambient = new BitmapData(400, 300, true, 0x00000000);
 		var b:Bitmap = new Bitmap(bmd);
 		b.scaleX = b.scaleY = 2;
 		addChild(b);
@@ -119,6 +121,7 @@ class Game extends Sprite {
 	}
 
 	public function tick(e:Event){
+
 		bmd.fillRect(bmd.rect, 0x00000000);
 		// repeat back wall
 		var bwp:Int = Std.int(drawOffset/2-8*Math.floor(drawOffset/16));
@@ -251,15 +254,20 @@ class Game extends Sprite {
 
 		//GraphicsUtil.drawLine(bmd, 0, rooftopEdge+drawOffset, 400, rooftopEdge+drawOffset, 0xffff0000);
 
+		
+		var drawAmbient = count%3 == 0;
+		if(drawAmbient) ambient.fillRect(ambient.rect, 0x00000000);
+
 		// flying birds
 		var bf = 2+Std.int(Math.random()*2);
-		if(Math.random()>.8){
-			bmd.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
+		if(Math.random()>.4 && drawAmbient){
+			ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
 				new Point(Math.random()*450-25, 264-Math.random()*(wallOrderLeft.length*80)+drawOffset), null, null, true);
 		}
 
 		// sitting birds
-		for(i in 0...2){
+		if(drawAmbient)
+		for(i in 0...10){
 			bf = Std.int(Math.random()*2);
 			var birdy = 264; // floor
 			var birdx = Math.random()*450-25; // anywhere
@@ -286,33 +294,33 @@ class Game extends Sprite {
 				}
 				
 			}
-			bmd.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
+			ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
 					new Point(birdx, birdy+drawOffset), null, null, true);
 		}
 
 		// draw street people
 		var pf = Std.int(Math.random()*7);
 		people = GraphicsUtil.flipBitmapData(people);
-		if(Math.random()>.3){
+		if(Math.random()>.3 && drawAmbient){
 			for(i in 0...Std.int(Math.random()*3))
-			bmd.copyPixels(people, new Rectangle(64*pf, 0, 64, 96), new Point(Math.random()*450-25, 194+drawOffset), null, null, true);
+			ambient.copyPixels(people, new Rectangle(64*pf, 0, 64, 96), new Point(Math.random()*450-25, 194+drawOffset), null, null, true);
 		}
 
 		// draw cars
 		var cf = Math.random()<.5?1:0;
 		cars = GraphicsUtil.flipBitmapData(cars);
-		bmd.copyPixels(cars, new Rectangle(153*pf, 0, 153, 64), new Point(Math.random()*500-50, 235+drawOffset), null, null, true);
+		ambient.copyPixels(cars, new Rectangle(153*pf, 0, 153, 64), new Point(Math.random()*500-50, 235+drawOffset), null, null, true);
 
 		if(carCounter > 0) carCounter--;
-		else if(carCounter < 0){
+		else if(carCounter < 0 && drawAmbient){
 			// draw lingering car
-			bmd.copyPixels(cars2, new Rectangle(153*carType, 0, 153, 64), new Point(carPos, 235+drawOffset), null, null, true);
+			ambient.copyPixels(cars2, new Rectangle(153*carType, 0, 153, 64), new Point(carPos, 235+drawOffset), null, null, true);
 
 			carCounter++;
 			if(carCounter == 0)
 				carCounter = Std.int(Math.random()*150+20);
 		}
-		else {
+		else if(drawAmbient){
 			carPos = Std.int(Math.random()*500-50);
 			carType = Math.random()>.5?1:0;
 			carCounter = Std.int(-20-Math.random()*200);
@@ -326,9 +334,12 @@ class Game extends Sprite {
 			drawOffset++;
 		}
 
-		if(count%2==0){
+
+		bmd.copyPixels(ambient, ambient.rect, new Point(), null, null, true);
+
+		if(drawAmbient){
 			var ta = 1-(drawOffset-wallOrderLeft.length*72)/200;
-			var a = Math.min(ta, .1);
+			var a = Math.min(ta, .05);
 			if(a<0) a = 0;
 			var alphaBitmap:BitmapData = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, a));
 			bmd.copyPixels(black, black.rect, new Point(), alphaBitmap, null, true);
