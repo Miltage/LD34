@@ -48,6 +48,7 @@ class Game extends Sprite {
 	var birds:BitmapData;
 	var title:BitmapData;
 	var end:BitmapData;
+	var buttons:BitmapData;
 
 	var titleCard:Bitmap;
 	
@@ -77,6 +78,7 @@ class Game extends Sprite {
 		birds = Assets.getBitmapData("assets/birds.png");
 		title = Assets.getBitmapData("assets/titlecard.png");
 		end = Assets.getBitmapData("assets/end.png");
+		buttons = Assets.getBitmapData("assets/buttons.png");
 		setupWalls();
 
 		oldAnchors = [];
@@ -328,9 +330,16 @@ class Game extends Sprite {
 			var ta = 1-(drawOffset-wallOrderLeft.length*72)/200;
 			var a = Math.min(ta, .1);
 			if(a<0) a = 0;
-			var alphaBitmap:BitmapData = new BitmapData(title.width, title.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, a));
+			var alphaBitmap:BitmapData = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, a));
 			bmd.copyPixels(black, black.rect, new Point(), alphaBitmap, null, true);
 		}
+
+		// draw keys
+		var alphaBitmap:BitmapData = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, (40-drawOffset)/40>0?(40-drawOffset)/40:0));
+		bmd.copyPixels(buttons, new Rectangle(0, 0, 17, 19), new Point(200-17-15, 160+drawOffset), alphaBitmap, null, true);
+		bmd.copyPixels(buttons, new Rectangle(17, 0, 17, 19), new Point(200+15, 160+drawOffset), alphaBitmap, null, true);
+		alphaBitmap = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, (40-drawOffset)/40>0?(40-drawOffset)/40:0));
+		bmd.copyPixels(end, new Rectangle(0, end.height/2, end.width, end.height/2), new Point(200-end.width/2, 190+drawOffset), alphaBitmap, null, true);
 
 		count++;
 		if(count % 10 == 0 || lastAnchor.anchored || lastAnchor.connected){
