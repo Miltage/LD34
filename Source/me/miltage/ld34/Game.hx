@@ -20,6 +20,7 @@ class Game extends Sprite {
 	public static var TURN_SPEED:Float = 10;
 
 	var bmd:BitmapData;
+	var black:BitmapData;
 	var key:KeyObject;
 
 	var anchors:Array<Anchor>;
@@ -43,6 +44,7 @@ class Game extends Sprite {
 	var people:BitmapData;
 	var cars:BitmapData;
 	var cars2:BitmapData;
+	var birds:BitmapData;
 	
 	public function new(stage:Stage) {
 		super();
@@ -54,6 +56,7 @@ class Game extends Sprite {
 		frames.push(f);
 
 		bmd = new BitmapData(400, 300, true, 0x00000000);
+		black = new BitmapData(400, 300, true, 0x11000000);
 		var b:Bitmap = new Bitmap(bmd);
 		b.scaleX = b.scaleY = 2;
 		addChild(b);
@@ -66,6 +69,7 @@ class Game extends Sprite {
 		people = Assets.getBitmapData("assets/street_people.png");
 		cars = Assets.getBitmapData("assets/cars.png");
 		cars2 = Assets.getBitmapData("assets/cars.png");
+		birds = Assets.getBitmapData("assets/birds.png");
 		setupWalls();
 
 		oldAnchors = [];
@@ -237,6 +241,37 @@ class Game extends Sprite {
 
 		//GraphicsUtil.drawLine(bmd, 0, rooftopEdge+drawOffset, 400, rooftopEdge+drawOffset, 0xffff0000);
 
+		// flying birds
+		var bf = 2+Std.int(Math.random()*2);
+		if(Math.random()>.8){
+			bmd.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
+				new Point(Math.random()*450-25, 264-Math.random()*(wallOrderLeft.length*80)+drawOffset), null, null, true);
+		}
+
+		// sitting birds
+		for(i in 0...4){
+			bf = Std.int(Math.random()*2);
+			var birdy = 264; // floor
+			var birdx = Math.random()*450-25; // anywhere
+			if(Math.random()>.1){
+				var valid = false;
+				while(!valid){
+					var i = 0+Std.int(Math.random()*(wallOrderLeft.length-1));
+					if(wallOrderLeft[i] == 1 && ((i>0 && wallOrderLeft[i-1] == 1) || (i<wallOrderLeft.length && wallOrderLeft[i+1] == 1))){
+						valid = true;
+						birdx = 130+Math.random()*40-20;
+						birdy = 186-Std.int(wallWindowsLeft.height*(i+1));
+					} else if(wallOrderRight[i] == 1 && ((i>0 && wallOrderRight[i-1] == 1) || (i<wallOrderLeft.length && wallOrderRight[i+1] == 1))){
+						valid = true;
+						birdx = 240+Math.random()*40-20;
+						birdy = 186-Std.int(wallWindowsLeft.height*(i+1));
+					}
+				}
+			}
+			bmd.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
+					new Point(birdx, birdy+drawOffset), null, null, true);
+		}
+
 		// draw street people
 		var pf = Std.int(Math.random()*7);
 		people = GraphicsUtil.flipBitmapData(people);
@@ -268,6 +303,10 @@ class Game extends Sprite {
 
 		drawOffset = Std.int(150-lastAnchor.r.y);
 		if(drawOffset < 0) drawOffset = 0;
+
+		if(count%2==0){
+			bmd.draw(black, new openfl.geom.Matrix(1, 0, 0, 1, 0, 0));
+		}
 
 		count++;
 		if(count % 10 == 0 || lastAnchor.anchored || lastAnchor.connected){
