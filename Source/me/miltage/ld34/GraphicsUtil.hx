@@ -6,6 +6,7 @@ import openfl.geom.Matrix;
 class GraphicsUtil {
 	
 	public static function drawLine (bmd:openfl.display.BitmapData, xx0:Float, yy0:Float, xx1:Float, yy1:Float, color:Int) {
+		if(xx0 == 0 || yy0 == 0 || xx1 == 0 || yy1 == 0) return;
 		// Bresenham's line drawing algorithm
 		var x0:Int = Std.int(xx0);
 		var x1:Int = Std.int(xx1);

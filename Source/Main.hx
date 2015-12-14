@@ -27,7 +27,7 @@ class Main extends Sprite {
 		Lib.current.stage.quality = flash.display.StageQuality.LOW;
 
 		soundManager = new SoundManager(1);
-		soundManager.loop("assets/song.mp3");
+		//soundManager.loop("assets/song.mp3");
 		
 		game = new Game(stage);
 		addChild(game);

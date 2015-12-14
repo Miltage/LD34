@@ -148,15 +148,18 @@ class Game extends Sprite {
 		bmd.fillRect(bmd.rect, 0x00000000);
 		// repeat back wall
 		var bwp:Int = Std.int(drawOffset/2-8*Math.floor(drawOffset/16));
-		bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, bwp-8));
-		bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, bwp+64));
-		bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, bwp+152));
-		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, Std.int(drawOffset/2)));
+		var p:Int = Std.int(-wallOrderLeft.length*40+3+drawOffset/2);
+		for(i in 0...100){
+			bmd.copyPixels(backWalls, new Rectangle(0, 0, backWalls.width, 148), new Point(0, p+72*i-2));
+		}
+		bmd.fillRect(new Rectangle(0, 0, 400, p), 0xff75cdcf);
+		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, p));
+		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, p+wallOrderLeft.length*40-2));
 		// end back wall
-		bmd.fillRect(new Rectangle(0, 0, 400, -wallOrderLeft.length*40+3+drawOffset/2+5), 0xff75cdcf);
-		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*40+drawOffset/2));
+
 		bmd.fillRect(new Rectangle(0, -wallOrderLeft.length*67+drawOffset, 119, 3000), 0xff3d3c39);
 		bmd.fillRect(new Rectangle(281, -wallOrderLeft.length*67+drawOffset, 120, 3000), 0xff3d3c39);
+
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
 		bmd.copyPixels(walls, wallPosters, new Point(0, 195+drawOffset), null, null, true);
 
@@ -395,13 +398,13 @@ class Game extends Sprite {
 
 		filter.alpha = 0;
 		if(!finished && drawAmbient && Main.EFFECTS && !Main.PAUSED){
-			filter.alpha = Math.random()*.2;
-			var red:Float = Math.floor(Math.random()*40);
-			var green:Float = Math.floor(Math.random()*40);
-			var blue:Float = Math.floor(Math.random()*40);
+			filter.alpha = Math.random()*.25;
+			var red:Float = Math.floor(Math.random()*80);
+			var green:Float = Math.floor(Math.random()*80);
+			var blue:Float = Math.floor(Math.random()*80);
 			var color:UInt = 255 << 24 | Std.int(red) << 16 | Std.int(green) << 8 | Std.int(blue);
 			fbmd.fillRect(fbmd.rect, color);
-			filter.blendMode = openfl.display.BlendMode.OVERLAY;
+			filter.blendMode = openfl.display.BlendMode.ADD;
 		}
 
 		// draw keys
@@ -479,7 +482,7 @@ class Game extends Sprite {
 		bmd.copyPixels(end, end.rect, new Point(200-end.width/2, 150-end.height/2), alphaBitmap, null, true);
 
 		// draw title card
-		var ta = (drawOffset-wallOrderLeft.length*72)/100;
+		var ta = (drawOffset-wallOrderLeft.length*72+40)/100;
 		if(ta < 0) ta = 0;
 		else if(ta > 1){
 			ta = 1;
@@ -563,21 +566,21 @@ class Game extends Sprite {
 			if(i>1) f.setRect(new Rectangle(0, 0, f.width, f.height-29));
 			wallObjects.push(f);
 			frames.push(f);
-		} else if(n==1 && Math.random() < .5){
+		} else if(n==1 && Math.random() < .3){
 			var f = new Frame("aircon.png");
 			f.x = 110+side*180;
 			f.y = 200-wallWindowsLeft.height*(i+1);
 			f.scaleX = side==0?1:-1;
 			wallObjects.push(f);
 			frames.push(f);
-		} else if (n == 0 && Math.random() < .4){
+		} else if (n == 0 && Math.random() < .3){
 			var f = new Frame("satellite.png");
 			f.x = 118+side*164;
 			f.y = 200-wallWindowsLeft.height*(i+1);
 			f.scaleX = side==0?1:-1;
 			wallObjects.push(f);
 			frames.push(f);
-		} else if (n == 0 && Math.random() < .4){
+		} else if (n == 0 && Math.random() < .3){
 			var f = new Frame("camera.png");
 			f.x = 120+side*160;
 			f.y = 200-wallWindowsLeft.height*(i+1);
