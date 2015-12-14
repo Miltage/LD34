@@ -22,6 +22,7 @@ class KeyObject {
 	public static var X:UInt = Keyboard.X;
 	public static var C:UInt = Keyboard.C;
 	public static var SPACE:UInt = Keyboard.SPACE;
+	public static var ESCAPE:UInt = Keyboard.ESCAPE;
 	public static var NUMPAD_0:UInt = Keyboard.NUMPAD_0;
 	public static var NUMPAD_1:UInt = Keyboard.NUMPAD_1;
 	public static var NUMPAD_2:UInt = Keyboard.NUMPAD_2;

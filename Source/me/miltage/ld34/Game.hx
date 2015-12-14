@@ -132,7 +132,18 @@ class Game extends Sprite {
 		}
 	}
 
+	private var escPressed:Bool = false;
 	public function tick(e:Event){
+
+		if(!escPressed && key.isDown(KeyObject.ESCAPE) && !Main.instance.isMenuVisible()){
+			Main.instance.showMenu();
+			escPressed = true;
+		} else if (!escPressed && key.isDown(KeyObject.ESCAPE)) {
+			Main.instance.hideMenu();
+			escPressed = true;
+		} else if(!key.isDown(KeyObject.ESCAPE)){
+			escPressed = false;
+		}
 
 		bmd.fillRect(bmd.rect, 0x00000000);
 		// repeat back wall
@@ -143,7 +154,7 @@ class Game extends Sprite {
 		bmd.draw(backWalls, new openfl.geom.Matrix(1, 0, 0, 1, 0, Std.int(drawOffset/2)));
 		// end back wall
 		bmd.fillRect(new Rectangle(0, 0, 400, -wallOrderLeft.length*40+3+drawOffset/2+5), 0xff75cdcf);
-		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*40+3+drawOffset/2));
+		bmd.draw(sky, new openfl.geom.Matrix(1, 0, 0, 1, 0, -wallOrderLeft.length*40+drawOffset/2));
 		bmd.fillRect(new Rectangle(0, -wallOrderLeft.length*67+drawOffset, 119, 3000), 0xff3d3c39);
 		bmd.fillRect(new Rectangle(281, -wallOrderLeft.length*67+drawOffset, 120, 3000), 0xff3d3c39);
 		bmd.draw(street, new openfl.geom.Matrix(1, 0, 0, 1, 0, drawOffset));
@@ -179,51 +190,53 @@ class Game extends Sprite {
 		}
 
 		var lastAnchor:Anchor = anchors[anchors.length-1];
-		if(key.isDown(KeyObject.LEFT) || key.isDown(KeyObject.A)){
-			angle-=TURN_SPEED;
-		}
-		if(key.isDown(KeyObject.RIGHT) || key.isDown(KeyObject.D)){
-			angle+=TURN_SPEED;
-		}
-		angle += Math.random()*10-5;
-		var radians = angle * Math.PI / 180;
-		var dx = Math.cos(radians);
-		var dy = Math.sin(radians);
-		lastAnchor.r.x += dx*MOVE_SPEED;
-		lastAnchor.r.y += dy*MOVE_SPEED;
+		if(!Main.PAUSED){
+			if(key.isDown(KeyObject.LEFT) || key.isDown(KeyObject.A)){
+				angle-=TURN_SPEED;
+			}
+			if(key.isDown(KeyObject.RIGHT) || key.isDown(KeyObject.D)){
+				angle+=TURN_SPEED;
+			}
+			angle += Math.random()*10-5;
+			var radians = angle * Math.PI / 180;
+			var dx = Math.cos(radians);
+			var dy = Math.sin(radians);
+			lastAnchor.r.x += dx*MOVE_SPEED;
+			lastAnchor.r.y += dy*MOVE_SPEED;
 
-		var lastConstraint = constraints[constraints.length-1];
-		lastConstraint.setLength(lastConstraint.getLength()+1);
+			var lastConstraint = constraints[constraints.length-1];
+			lastConstraint.setLength(lastConstraint.getLength()+1);
 
-		var gravity = new Point(0, 0.1+0.006*anchors.length);
+			var gravity = new Point(0, 0.1+0.006*anchors.length);
 
-		// update new anchors
-		for(anchor in anchors){
-			anchor.forces.push(gravity);
-			anchor.update();
-			if(anchor.r.y > 280) anchor.r.y = 280;
-			else if(anchor.r.y > rooftopEdge+4 && anchor.r.x < 120) anchor.r.x = 120;
-			else if(anchor.r.y > rooftopEdge+4 && anchor.r.x > 280) anchor.r.x = 280;
-			else if(anchor.r.y > rooftopEdge && anchor.r.x < 120) anchor.r.y = rooftopEdge;
-			else if(anchor.r.y > rooftopEdge && anchor.r.x > 280) anchor.r.y = rooftopEdge;
-			//GraphicsUtil.drawCircle(bmd, anchor.r.x, anchor.r.y+drawOffset, 2, 0xff61a45a, true);
-		}
+			// update new anchors
+			for(anchor in anchors){
+				anchor.forces.push(gravity);
+				anchor.update();
+				if(anchor.r.y > 280) anchor.r.y = 280;
+				else if(anchor.r.y > rooftopEdge+4 && anchor.r.x < 120) anchor.r.x = 120;
+				else if(anchor.r.y > rooftopEdge+4 && anchor.r.x > 280) anchor.r.x = 280;
+				else if(anchor.r.y > rooftopEdge && anchor.r.x < 120) anchor.r.y = rooftopEdge;
+				else if(anchor.r.y > rooftopEdge && anchor.r.x > 280) anchor.r.y = rooftopEdge;
+				//GraphicsUtil.drawCircle(bmd, anchor.r.x, anchor.r.y+drawOffset, 2, 0xff61a45a, true);
+			}
 
-		// update old anchors - can't forget about them!
-		for(anchor in oldAnchors){
-			if(anchor.r.y+drawOffset > 400 || anchor.r.y+drawOffset < -100)	continue;
-			if(anchor.r.y > 280) anchor.r.y = 280;
-			else if(anchor.r.y > rooftopEdge+4 && anchor.r.x < 120) anchor.r.x = 120;
-			else if(anchor.r.y > rooftopEdge+4 && anchor.r.x > 280) anchor.r.x = 280;
-			else if(anchor.r.y > rooftopEdge && anchor.r.x < 120) anchor.r.y = rooftopEdge;
-			else if(anchor.r.y > rooftopEdge && anchor.r.x > 280) anchor.r.y = rooftopEdge;
-			anchor.forces.push(gravity);
-			anchor.update();
+			// update old anchors - can't forget about them!
+			for(anchor in oldAnchors){
+				if(anchor.r.y+drawOffset > 400 || anchor.r.y+drawOffset < -100)	continue;
+				if(anchor.r.y > 280) anchor.r.y = 280;
+				else if(anchor.r.y > rooftopEdge+4 && anchor.r.x < 120) anchor.r.x = 120;
+				else if(anchor.r.y > rooftopEdge+4 && anchor.r.x > 280) anchor.r.x = 280;
+				else if(anchor.r.y > rooftopEdge && anchor.r.x < 120) anchor.r.y = rooftopEdge;
+				else if(anchor.r.y > rooftopEdge && anchor.r.x > 280) anchor.r.y = rooftopEdge;
+				anchor.forces.push(gravity);
+				anchor.update();
+			}
 		}
 
 		// draw foreground vines
 		for(constraint in constraints){
-			constraint.update();
+			if(!Main.PAUSED) constraint.update();
 			if(constraint.b.position == 1) continue;
 			var diff = constraint.b.r.subtract(constraint.a.r);
 			diff.normalize(1);
@@ -249,6 +262,7 @@ class Game extends Sprite {
 		}
 
 		// update hanging anchors
+		if(!Main.PAUSED) 
 		for(anchor in miscAnchors){
 			anchor.forces.push(new Point(0, 0.025));
 			if(anchor.connected)
@@ -265,7 +279,7 @@ class Game extends Sprite {
 
 		// draw hanging lines
 		for(constraint in miscConstraints){
-			constraint.update();
+			if(!Main.PAUSED) constraint.update();
 			var diff = constraint.b.r.subtract(constraint.a.r);
 			diff.normalize(1);
 			GraphicsUtil.drawLine(bmd, constraint.a.r.x, constraint.a.r.y+drawOffset, constraint.b.r.x+diff.x, constraint.b.r.y+diff.y+drawOffset, 0xff1f1e1b);
@@ -275,96 +289,99 @@ class Game extends Sprite {
 
 		
 		var drawAmbient = count%SHUTTER_SPEED == 0;
-		if(drawAmbient){
+		if(drawAmbient && !Main.PAUSED){
 			ambient.fillRect(ambient.rect, 0x00000000);
 		}
 
-		// flying birds
-		var bf = 2+Std.int(Math.random()*2);
-		if(Math.random()>.4 && drawAmbient){
-			for(i in 0...5)
-			ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
-				new Point(Math.random()*450-25, 264-Math.random()*(wallOrderLeft.length*80)+drawOffset), null, null, true);
-		}
+		if(Main.EFFECTS && !Main.PAUSED){
 
-		// sitting birds
-		if(drawAmbient)
-		for(i in 0...10){
-			bf = Std.int(Math.random()*2);
-			var birdy = 264; // floor
-			var birdx = Math.random()*450-25; // anywhere
-			if(Math.random()>.25){
-				var valid = false;
-				if(Math.random()>.7){
-					// on roof
-					birdy = 195-Std.int(wallWindowsLeft.height*(wallOrderLeft.length+1));
-					birdx = Math.random()>.5?(Math.random()*110):(260+Math.random()*120);
-				}else{
-					// on fire escape
-					while(!valid){
-						var i = Std.int(Math.random()*wallOrderLeft.length);
-						if(wallOrderLeft[i] == 1 && ((i>0 && wallOrderLeft[i-1] == 1) || (i<wallOrderLeft.length && wallOrderLeft[i+1] == 1))){
-							valid = true;
-							birdx = 130+Math.random()*40-20;
-							birdy = 186-Std.int(wallWindowsLeft.height*(i+1));
-						} else if(wallOrderRight[i] == 1 && ((i>0 && wallOrderRight[i-1] == 1) || (i<wallOrderLeft.length && wallOrderRight[i+1] == 1))){
-							valid = true;
-							birdx = 240+Math.random()*40-20;
-							birdy = 186-Std.int(wallWindowsLeft.height*(i+1));
+			// flying birds
+			var bf = 2+Std.int(Math.random()*2);
+			if(Math.random()>.4 && drawAmbient){
+				for(i in 0...5)
+				ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
+					new Point(Math.random()*450-25, 264-Math.random()*(wallOrderLeft.length*80)+drawOffset), null, null, true);
+			}
+
+			// sitting birds
+			if(drawAmbient)
+			for(i in 0...10){
+				bf = Std.int(Math.random()*2);
+				var birdy = 264; // floor
+				var birdx = Math.random()*450-25; // anywhere
+				if(Math.random()>.25){
+					var valid = false;
+					if(Math.random()>.7){
+						// on roof
+						birdy = 195-Std.int(wallWindowsLeft.height*(wallOrderLeft.length+1));
+						birdx = Math.random()>.5?(Math.random()*110):(260+Math.random()*120);
+					}else{
+						// on fire escape
+						while(!valid){
+							var i = Std.int(Math.random()*wallOrderLeft.length);
+							if(wallOrderLeft[i] == 1 && ((i>0 && wallOrderLeft[i-1] == 1) || (i<wallOrderLeft.length && wallOrderLeft[i+1] == 1))){
+								valid = true;
+								birdx = 130+Math.random()*40-20;
+								birdy = 186-Std.int(wallWindowsLeft.height*(i+1));
+							} else if(wallOrderRight[i] == 1 && ((i>0 && wallOrderRight[i-1] == 1) || (i<wallOrderLeft.length && wallOrderRight[i+1] == 1))){
+								valid = true;
+								birdx = 240+Math.random()*40-20;
+								birdy = 186-Std.int(wallWindowsLeft.height*(i+1));
+							}
 						}
 					}
+					
 				}
-				
+				ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
+						new Point(birdx, birdy+drawOffset), null, null, true);
 			}
-			ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
-					new Point(birdx, birdy+drawOffset), null, null, true);
-		}
 
-		// birds on wires
-		if(drawAmbient)
-		for(i in 0...3){
-			bf = Std.int(Math.random()*2);
+			// birds on wires
+			if(drawAmbient)
+			for(i in 0...3){
+				bf = Std.int(Math.random()*2);
 
-			var a:Anchor = miscAnchors[Std.int(Math.random()*miscAnchors.length)];
+				var a:Anchor = miscAnchors[Std.int(Math.random()*miscAnchors.length)];
 
-			var birdx = a.r.x-16;
-			var birdy = a.r.y-22;
+				var birdx = a.r.x-16;
+				var birdy = a.r.y-22;
 
-			ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
-					new Point(birdx, birdy+drawOffset), null, null, true);
-		}
-
-		// draw street people
-		people = GraphicsUtil.flipBitmapData(people);
-		if(Math.random()>.3 && drawAmbient){
-			for(i in 0...Std.int(Math.random()*3)){
-				var pf = Std.int(Math.random()*7);
-				ambient.copyPixels(people, new Rectangle(64*pf, 0, 64, 96), new Point(Math.random()*450-25, 194+drawOffset), null, null, true);
+				ambient.copyPixels(birds, new Rectangle(32*bf, 32*Std.int(Math.round(Math.random())), 32, 32), 
+						new Point(birdx, birdy+drawOffset), null, null, true);
 			}
-		}
 
-		// draw cars
-		if(drawAmbient){
-			var cf = Math.random()<.05?1:0;
-			cars = GraphicsUtil.flipBitmapData(cars);
-			var pf = Std.int(Math.random()*2);
-			ambient.copyPixels(cars, new Rectangle(153*pf, 0, 153, 64), new Point(Math.random()*500-50, 235+drawOffset), null, null, true);
-		}
+			// draw street people
+			people = GraphicsUtil.flipBitmapData(people);
+			if(Math.random()>.3 && drawAmbient){
+				for(i in 0...Std.int(Math.random()*3)){
+					var pf = Std.int(Math.random()*7);
+					ambient.copyPixels(people, new Rectangle(64*pf, 0, 64, 96), new Point(Math.random()*450-25, 194+drawOffset), null, null, true);
+				}
+			}
 
-		if(carCounter > 0) carCounter--;
-		else if(carCounter < 0 && drawAmbient){
-			// draw lingering car
-			ambient.copyPixels(cars2, new Rectangle(153*carType, 0, 153, 64), new Point(carPos, 235+drawOffset), null, null, true);
+			// draw cars
+			if(drawAmbient){
+				var cf = Math.random()<.05?1:0;
+				cars = GraphicsUtil.flipBitmapData(cars);
+				var pf = Std.int(Math.random()*2);
+				ambient.copyPixels(cars, new Rectangle(153*pf, 0, 153, 64), new Point(Math.random()*500-50, 235+drawOffset), null, null, true);
+			}
 
-			carCounter++;
-			if(carCounter == 0)
-				carCounter = Std.int(Math.random()*150+20);
-		}
-		else if(drawAmbient){
-			carPos = Std.int(Math.random()*500-50);
-			carType = Math.random()>.5?1:0;
-			carCounter = Std.int(-20-Math.random()*200);
-			if(Math.random()>.5) cars = GraphicsUtil.flipBitmapData(cars);
+			if(carCounter > 0) carCounter--;
+			else if(carCounter < 0 && drawAmbient){
+				// draw lingering car
+				ambient.copyPixels(cars2, new Rectangle(153*carType, 0, 153, 64), new Point(carPos, 235+drawOffset), null, null, true);
+
+				carCounter++;
+				if(carCounter == 0)
+					carCounter = Std.int(Math.random()*150+20);
+			}
+			else if(drawAmbient){
+				carPos = Std.int(Math.random()*500-50);
+				carType = Math.random()>.5?1:0;
+				carCounter = Std.int(-20-Math.random()*200);
+				if(Math.random()>.5) cars = GraphicsUtil.flipBitmapData(cars);
+			}
 		}
 
 		if(!finished){
@@ -376,7 +393,8 @@ class Game extends Sprite {
 
 		bmd.copyPixels(ambient, ambient.rect, new Point(0, drawOffset-lastOffset), null, null, true);
 
-		if(drawAmbient){
+		filter.alpha = 0;
+		if(!finished && drawAmbient && Main.EFFECTS && !Main.PAUSED){
 			filter.alpha = Math.random()*.2;
 			var red:Float = Math.floor(Math.random()*40);
 			var green:Float = Math.floor(Math.random()*40);
@@ -449,7 +467,7 @@ class Game extends Sprite {
 	var wallObjects:Array<Frame>;
 	private function drawWalls(){
 
-		if(count%SHUTTER_SPEED == 0) 
+		if(count%SHUTTER_SPEED == 0 && !Main.PAUSED) 
 			ambientWindows.fillRect(ambient.rect, 0x00000000);
 		
 		var ea = (drawOffset-wallOrderLeft.length*84)/100;
@@ -476,13 +494,13 @@ class Game extends Sprite {
 			if(wallOrderLeft[i] == 1){
 				var pf = Std.int(Math.random()*7);
 				if(pf == 3) pf = 0; // umbrellas inside are bad luck!
-				if(count%SHUTTER_SPEED==0 && Math.random()>.8)
+				if(count%SHUTTER_SPEED==0 && Math.random()>.8 && Main.EFFECTS && !Main.PAUSED)
 					ambientWindows.copyPixels(people, new Rectangle(pf*64, 0, 64, 50), new Point(Math.random()*100-50, p), null, null, true);
 			}
 			if(wallOrderRight[i] == 1){
 				var pf = Std.int(Math.random()*7);
 				if(pf == 3) pf = 0; // umbrellas inside are bad luck!
-				if(count%SHUTTER_SPEED==0 && Math.random()>.8) 
+				if(count%SHUTTER_SPEED==0 && Math.random()>.8 && Main.EFFECTS && !Main.PAUSED) 
 					ambientWindows.copyPixels(people, new Rectangle(pf*64, 0, 64, 50), new Point(Math.random()*100+300, p), null, null, true);
 			}
 		}
@@ -567,5 +585,9 @@ class Game extends Sprite {
 			wallObjects.push(f);
 			frames.push(f);
 		}
+	}
+
+	public function dump(){
+		removeEventListener(Event.ENTER_FRAME, tick);
 	}
 }
