@@ -398,13 +398,13 @@ class Game extends Sprite {
 
 		filter.alpha = 0;
 		if(!finished && drawAmbient && Main.EFFECTS && !Main.PAUSED){
-			filter.alpha = Math.random()*.25;
-			var red:Float = Math.floor(Math.random()*80);
-			var green:Float = Math.floor(Math.random()*80);
-			var blue:Float = Math.floor(Math.random()*80);
+			filter.alpha = .1+Math.random()*.3;
+			var red:Float = 40+Math.floor(Math.random()*40);
+			var green:Float = 40+Math.floor(Math.random()*40);
+			var blue:Float = 40+Math.floor(Math.random()*40);
 			var color:UInt = 255 << 24 | Std.int(red) << 16 | Std.int(green) << 8 | Std.int(blue);
 			fbmd.fillRect(fbmd.rect, color);
-			filter.blendMode = openfl.display.BlendMode.ADD;
+			filter.blendMode = openfl.display.BlendMode.OVERLAY;
 		}
 
 		// draw keys
@@ -414,7 +414,7 @@ class Game extends Sprite {
 		alphaBitmap = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, (40-drawOffset)/40>0?(40-drawOffset)/40:0));
 		bmd.copyPixels(end, new Rectangle(0, end.height/2, end.width, end.height/2), new Point(200-end.width/2, 190+drawOffset), alphaBitmap, null, true);
 
-		count++;
+		if(!Main.PAUSED) count++;
 		if(count % 10 == 0 || lastAnchor.anchored || lastAnchor.connected){
 			var a = new Anchor(lastAnchor.r.x, lastAnchor.r.y);
 			a.position = lastAnchor.position;
@@ -423,6 +423,9 @@ class Game extends Sprite {
 			var c = new Constraint(lastAnchor, a, -1);
 			constraints.push(c);
 		}
+
+		alphaBitmap = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, Math.max((40-count)/40, 0)));
+		bmd.copyPixels(black, black.rect, new Point(), alphaBitmap, null, true);
 	}
 
 	var wallBricksLeft:Rectangle;
