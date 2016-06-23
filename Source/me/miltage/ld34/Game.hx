@@ -54,6 +54,7 @@ class Game extends Sprite {
 	var end:BitmapData;
 	var buttons:BitmapData;
 	var fbmd:BitmapData;
+	var ui:BitmapData;
 
 	var filter:Sprite;
 	
@@ -67,6 +68,7 @@ class Game extends Sprite {
 		frames.push(f);
 
 		bmd = new BitmapData(400, 300, true, 0x00000000);
+		ui = new BitmapData(400, 300, true, 0x00000000);
 		black = new BitmapData(400, 300, true, 0xff000000);
 		ambient = new BitmapData(400, 400, true, 0x00000000);
 		ambientWindows = new BitmapData(400, 300, true, 0x00000000);
@@ -85,6 +87,10 @@ class Game extends Sprite {
 		filter.addChild(new Bitmap(fbmd));
 		filter.scaleX = filter.scaleY = 2;
 		addChild(filter);
+		
+		var gui:Bitmap = new Bitmap(ui);
+		gui.scaleX = gui.scaleY = 2;
+		addChild(gui);
 
 		walls = Assets.getBitmapData("assets/walls.png");
 		backWalls = Assets.getBitmapData("assets/background.png");
@@ -152,6 +158,7 @@ class Game extends Sprite {
 		}
 
 		bmd.fillRect(bmd.rect, 0x00000000);
+		ui.fillRect(ui.rect, 0x00000000);
 		// repeat back wall
 		var bwp:Int = Std.int(drawOffset/2-8*Math.floor(drawOffset/16));
 		var p:Int = Std.int(-wallOrderLeft.length*40+3+drawOffset/2);
@@ -409,10 +416,10 @@ class Game extends Sprite {
 
 		// draw keys
 		var alphaBitmap:BitmapData = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, (40-drawOffset)/40>0?(40-drawOffset)/40:0));
-		bmd.copyPixels(buttons, new Rectangle(0, 0, 17, 19), new Point(200-17-15, 160+drawOffset), alphaBitmap, null, true);
-		bmd.copyPixels(buttons, new Rectangle(17, 0, 17, 19), new Point(200+15, 160+drawOffset), alphaBitmap, null, true);
+		ui.copyPixels(buttons, new Rectangle(0, 0, 17, 19), new Point(200-17-15, 160+drawOffset), alphaBitmap, null, true);
+		ui.copyPixels(buttons, new Rectangle(17, 0, 17, 19), new Point(200+15, 160+drawOffset), alphaBitmap, null, true);
 		alphaBitmap = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, (40-drawOffset)/40>0?(40-drawOffset)/40:0));
-		bmd.copyPixels(end, new Rectangle(0, end.height/2, end.width, end.height/2), new Point(200-end.width/2, 190+drawOffset), alphaBitmap, null, true);
+		ui.copyPixels(end, new Rectangle(0, end.height/2, end.width, end.height/2), new Point(200-end.width/2, 190+drawOffset), alphaBitmap, null, true);
 
 		if(!Main.PAUSED) count++;
 		if(count % 10 == 0 || lastAnchor.anchored || lastAnchor.connected){
