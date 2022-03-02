@@ -76,12 +76,6 @@ class Game extends Sprite {
 
 		filter = new Sprite();
 		fbmd = new BitmapData(400, 300, true, 0xffffffff);
-		var red:Float = 0;//40+Math.floor(Math.random()*40);
-		var green:Float = 0;//40+Math.floor(Math.random()*40);
-		var blue:Float = 255;//40+Math.floor(Math.random()*40);
-		var color:UInt = 255 << 24 | Std.int(red) << 16 | Std.int(green) << 8 | Std.int(blue);
-		fbmd.fillRect(fbmd.rect, color);
-		filter.blendMode = openfl.display.BlendMode.MULTIPLY;
 		filter.addChild(new Bitmap(fbmd));
 		filter.scaleX = filter.scaleY = 2;
 		addChild(filter);
@@ -402,9 +396,15 @@ class Game extends Sprite {
 
 		bmd.copyPixels(ambient, ambient.rect, new Point(0, drawOffset-lastOffset), null, null, true);
 
-		//filter.alpha = 0;
-		if(!finished && Main.EFFECTS && !Main.PAUSED){
-			filter.alpha = 0.6+(lastAnchor.r.y/3500);
+		filter.alpha = 0;
+		if(!finished && drawAmbient && Main.EFFECTS && !Main.PAUSED){
+			filter.alpha = .1+Math.random()*.3;
+			var red:Float = 40+Math.floor(Math.random()*40);
+			var green:Float = 40+Math.floor(Math.random()*40);
+			var blue:Float = 40+Math.floor(Math.random()*40);
+			var color:UInt = 255 << 24 | Std.int(red) << 16 | Std.int(green) << 8 | Std.int(blue);
+			fbmd.fillRect(fbmd.rect, color);
+			filter.blendMode = openfl.display.BlendMode.OVERLAY;
 		}
 
 		// draw keys
