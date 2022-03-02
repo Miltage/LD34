@@ -51,7 +51,6 @@ class Game extends Sprite {
 	var cars2:BitmapData;
 	var birds:BitmapData;
 	var title:BitmapData;
-	var raindrop:BitmapData;
 	var end:BitmapData;
 	var start:BitmapData;
 	var buttons:BitmapData;
@@ -85,7 +84,7 @@ class Game extends Sprite {
 		var blue:Float = 255;//40+Math.floor(Math.random()*40);
 		var color:UInt = 255 << 24 | Std.int(red) << 16 | Std.int(green) << 8 | Std.int(blue);
 		fbmd.fillRect(fbmd.rect, color);
-		filter.blendMode = openfl.display.BlendMode.DARKEN;
+		filter.blendMode = openfl.display.BlendMode.MULTIPLY;
 		filter.addChild(new Bitmap(fbmd));
 		filter.scaleX = filter.scaleY = 2;
 		addChild(filter);
@@ -102,7 +101,6 @@ class Game extends Sprite {
 		people = Assets.getBitmapData("assets/street_people.png");
 		cars = Assets.getBitmapData("assets/cars.png");
 		cars2 = Assets.getBitmapData("assets/cars.png");
-		raindrop = Assets.getBitmapData("assets/raindrop.png");
 		birds = Assets.getBitmapData("assets/birds.png");
 		title = Assets.getBitmapData("assets/titlecard.png");
 		end = Assets.getBitmapData("assets/end.png");
@@ -402,12 +400,6 @@ class Game extends Sprite {
 				carCounter = Std.int(-20-Math.random()*200);
 				if(Math.random()>.5) cars = GraphicsUtil.flipBitmapData(cars);
 			}
-
-			if (drawAmbient)
-				for(i in 0...Std.int(150+lastAnchor.r.y/8))
-				{
-					ambient.copyPixels(raindrop, raindrop.rect, new Point(Math.random()*800, Math.random()*600), null, null, true);
-				}
 		}
 
 		if(!finished){
