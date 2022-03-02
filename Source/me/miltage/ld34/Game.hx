@@ -52,7 +52,6 @@ class Game extends Sprite {
 	var birds:BitmapData;
 	var title:BitmapData;
 	var end:BitmapData;
-	var start:BitmapData;
 	var buttons:BitmapData;
 	var fbmd:BitmapData;
 	var ui:BitmapData;
@@ -88,7 +87,7 @@ class Game extends Sprite {
 		filter.addChild(new Bitmap(fbmd));
 		filter.scaleX = filter.scaleY = 2;
 		addChild(filter);
-
+		
 		var gui:Bitmap = new Bitmap(ui);
 		gui.scaleX = gui.scaleY = 2;
 		addChild(gui);
@@ -104,7 +103,6 @@ class Game extends Sprite {
 		birds = Assets.getBitmapData("assets/birds.png");
 		title = Assets.getBitmapData("assets/titlecard.png");
 		end = Assets.getBitmapData("assets/end.png");
-		start = Assets.getBitmapData("assets/start.png");
 		buttons = Assets.getBitmapData("assets/buttons.png");
 		setupWalls();
 
@@ -421,7 +419,7 @@ class Game extends Sprite {
 		ui.copyPixels(buttons, new Rectangle(0, 0, 17, 19), new Point(200-17-15, 160+drawOffset), alphaBitmap, null, true);
 		ui.copyPixels(buttons, new Rectangle(17, 0, 17, 19), new Point(200+15, 160+drawOffset), alphaBitmap, null, true);
 		alphaBitmap = new BitmapData(black.width, black.height, true, GraphicsUtil.ARGBToHex(0, 0, 0, (40-drawOffset)/40>0?(40-drawOffset)/40:0));
-		ui.copyPixels(start, new Rectangle(0, 0, start.width, start.height), new Point(200-start.width/2, 190+drawOffset), alphaBitmap, null, true);
+		ui.copyPixels(end, new Rectangle(0, end.height/2, end.width, end.height/2), new Point(200-end.width/2, 190+drawOffset), alphaBitmap, null, true);
 
 		if(!Main.PAUSED) count++;
 		if(count % 10 == 0 || lastAnchor.anchored || lastAnchor.connected){
